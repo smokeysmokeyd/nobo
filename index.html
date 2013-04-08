@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<!-- hey! thanks for looking at my source. hope you have a good day. -->
+<head>
+  <title>NOBO</title>
+
+  <link rel="stylesheet" type="text/css" href="style/nobo.css" />
+  
+  <script type="text/javascript" src="js/OpenLayers.js"></script>
+  <script type="text/javascript" src="js/nobo.js"></script>
+</head>
+
+<body>
+	<nav>
+	  <div id="logo"><img src="style/logo.png"/></div>
+	  <ul id="menu" class="loading">
+		<li class="loading">loading <span id="loading_msg"></span>...</li>
+		<li id="m_postcard" class="r">leave a message</li>
+		<li id="m_updates" class="y">sign up for updates</li>
+		<li id="m_good_ppl" class="g">acknowledgements</li>
+	  </ul>
+	</nav>
+
+	<div id="postcard" class="content">
+	  <div id="p_msg">
+		<textarea id="p_text" placeholder=" you can type your message here.."></textarea>
+	  </div>
+	  <div id="p_return">
+		<div id="p_addr">
+		  <span>Wavy Davy</span>
+		  <span><span id="mileage">100</span> Appalachian Trail</span>
+		  <span>East Coast, USA</span>
+		</div>
+		<div id="p_disc">(not sure when i'll get to read these)</div>
+	  </div>
+	  <div id="p_stamp">send</div>
+	</div>
+
+	<div id="updates" class="content">
+	  <input type="text" id="update_email" placeholder="please enter your email address"/>
+	  notify: <span id="notify_buttons"><input type="button" id="every" value="every check-in"/><input type="button" id="every3" value="every 3 check-ins"/></span>
+	  <div id="updates_status">good</div>
+	</div>
+
+	<div id="good_ppl" class="content">
+	  <h1>It is awesome that we are here right now</h1>
+	  <p class="justify">I am so grateful and humbled to be living this moment, but it wouldn't be if not for some very special people.</p>
+	  <ol>
+		<li><span class="b4">Mom &amp; Dad</span> i love you. thank you for the life and love</li>
+		<li><span class="b3">Bruce</span> thank you for the opportunity of a lifetime</li>
+		<li><span class="b2">2pac</span> thanks for all the good advice. picture me rollin'</li>
+		<li><span class="b2">Sam Missel</span> miss you brother. rest in peace...</li>
+	  </ol>
+
+	  <p class="justify">Many thanks and much love also to all the people who have had a positive impact on me over the years:</p>
+	  <ul>
+		<li>Jinkyman</li>
+		<li>Brent</li>
+		<li>Mary J</li>
+		<li>Samson</li>
+		<li>A-Town Down</li>
+		<li>Matty P & The Pronchicks</li>
+		<li>Jazzy J</li>
+		<li>Joce</li>
+		<li>MadPad</li>
+		<li>Ms. D</li>
+		<li>John Smith</li>
+		
+		
+	  </ul>
+
+	  <h3>Website credits: <a href="http://openlayers.org" target="_blank">OpenLayers API</a>, <a href="http://developer.mapquest.com/web/products/open/map" target="_blank">Mapquest</a> for imagery, <a href="http://www.appalachiantrail.org/about-the-trail/mapping-gis-data/appalachian-trail-gis-gps-data" target="_blank">the ATC</a> for GIS data</h3>
+	</div>
+
+  <div id="map" class="loaded">
+	<ul id="controls" class="hidden">
+	  <li class="zoom">zoom:<div id="zoom_out">-</div><div id="zoom_in">+</div></li>
+	  <!--<li class="label">show map controls</li>-->
+	  <li>zoom <span id="zoom_in">in</span> / <span id="zoom_out">out</span></li>
+	  <li>past waypoints</li>
+	  <li>at shelters</li>
+	  <li>trail towns</li>
+	</ul>
+  </div>
+</body>
+
+</html>

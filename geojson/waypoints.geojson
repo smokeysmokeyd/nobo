@@ -1,0 +1,35 @@
+<?php
+
+require "../admin/nobo_config.php";
+
+try {
+  $db = new PDO("mysql:dbname=" . DB_NAME . ";host=" . DB_HOST . "localhost", DB_USER, DB_PASS);
+} catch (PDOException $e) {
+  die("Connection Failed: " . $e->getMessage());
+  }
+
+$q = $db->query("SELECT * FROM waypoints as w ORDER BY w.time DESC");
+
+$geojson = array( "type" => "FeatureCollection",
+				  "features" => array() );
+
+while ($row = $q->fetch(PDO::FETCH_ASSOC))
+  {
+	$geojson["features"][] = array( "type" => "Feature",
+									"id" => $row["id"],
+									"properties" => array( "name" => $row["name"],
+														   "time" => $row["time"],
+														   "dist" => $row["dist"],
+														   "civ_city" => $row["civ_city"],
+														   "civ_state" => $row["civ_state"],
+														   "civ_dist" => $row["civ_dist"] ),
+														 
+									"geometry" => array( "type" => "Point",
+														 "coordinates" => array( floatval($row["longitude"]),
+																				 floatval($row["latitude"]) ) ) );
+  }
+
+header("Content-type: application/json");
+
+echo json_encode($geojson);
+?>

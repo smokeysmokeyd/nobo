@@ -1,0 +1,7 @@
+<Files "waypoints.geojson">
+SetHandler application/x-httpd-php
+</Files>
+
+<Files "trail_towns.geojson">
+SetHandler application/x-httpd-php
+</Files>
