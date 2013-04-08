@@ -44,8 +44,8 @@ var style =
 	geojson_files : ["at_centerline", "at_states", "waypoints"],
 
 	images: [
-			 "img/terminus.png",
-			 "img/dlev.png"
+			 "style/terminus.png",
+			 "style/dlev.png"
 			 ],
 	icon_path : "img/",
 	icon_size : 32,
