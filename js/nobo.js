@@ -45,10 +45,7 @@ var style =
 
 	images: [
 			 "style/terminus.png",
-			 "style/dlev.png"
 			 ],
-	icon_path : "img/",
-	icon_size : 32,
 	at_states: {
 		fillColor: "transparent",
 		fillOpacity: "0.2",
