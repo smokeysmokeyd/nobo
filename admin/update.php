@@ -13,36 +13,182 @@ try {
   die("Connection Failed: " . $e->getMessage());
   }
 
-// email from file for now
-
-$email = file_get_contents("email.txt");
-process_email($email);
-exit;
-
-if ( isset($_POST) )
+if ( !empty($_POST) )
   {
 	try {
-	  if ( isset($_POST["email"]) )
-		$waypoint = process_email($_POST["email"]);
-	  else if ( isset($_POST["manual"]) )
-		$waypoint = process_manual();
+	  // parse input into easy access arrays
+	  if ( isset($_POST["Body"]) )
+		$data = process_email();
+	  else if ( isset($_POST["f"]) )
+		$data = process_manual($_POST["f"]);
+	  else
+		die("not sure what to do with no data to process");
+
+	  // if time hasn't been specified already, use current server time
+	  if ( is_null($data["time"]) )
+		$data["time"] = date("Y-m-d H:i:s");
+
+	  // if user specifies a waypoint w/ zip or dist
+	  if ( !is_null($data["dist"]) )
+		$data["waypoint"] = get_waypoint_from_dist($data["dist"]);
+	  else if ( !is_null($data["zip"]) )
+		$data["waypoint"] = get_waypoint_from_zip($data["zip"]);
+	  else
+		$data["waypoint"] = null;
+
+	  // check for commands
+	  if ( !is_null($data["command"]) )
+		{
+		  if ( substr_count($data["command"], "=") == 1 ) // user wants to set variable
+			change_variable($data["command"]);
+		  else if ($data["command"] == "shutdown") // 'nuff of this. i'm out!
+			shut_this_thing_down();
+		  else
+			throw new Exception("Can't understand command '{$data["command"]}'");
+		}
+
+	  // if there's a waypoint, add it to DB and send email to mailing list
+	  if ( !is_null($data["waypoint"]) )
+		{
+		  update_waypoint($data);
+		  send_update_emails($data);
+		}
 	}
 	catch (Exception $e) {
+	  if ( isset($data["email"]) ) // if data was sent via email, send error to sender
+		send_email($data["email"], "Error", "Error: " . $e->getMessage());
+	  else // if it was manual, show the error in html
+		echo "<h1>Error: " . $e->getMessage() . "</h1>";
 
+	  exit; // end script right there.
 	  }
   }
 else
   {
-	// display update page
+	$fields = array("zip", "dist", "command", "time", "comment");
+	echo "<!DOCTYPE html>\n<html><head><title>manual input</title></head><body><form action=\"{$_SERVER["PHP_SELF"]}\" method=\"POST\"><table>";
+	
+	foreach ($fields as $field)
+	  {
+		echo "<tr><td><input type=\"checkbox\" name=\"f[{$field}]\" value=\"1\"/></td><td>{$field}:</td><td><input type=\"text\" name=\"v[{$field}]\"/></td></tr>";
+	  }
+
+	echo "<tr><td colspan=\"3\" align=\"right\"><input type=\"submit\"></td></tr></table></form></body></html>";
   }
 
-// finish this...
-function send_update_emails($waypoint)
+function process_manual($fields)
 {
-  $addrs = $db->query("SELECT m.email FROM mailing_list AS m");
+  $all_fields = array("dist" => "/^(?:[1-9]\d*|0)?(?:\.\d+)?$/",
+					  "zip" => "/^\d{5}$/",
+					  "time" => "/^\d{1,2}\-\d{1,2}\-\d{4}$/",
+					  "command" => "",
+					  "comment" => "");
+  $data = array();
 
-  if (!$addrs) return;  
-  else return;
+  if ( empty($fields) )
+	throw new Exception("No data has been inputted");
+  
+  foreach ( $all_fields as $field => $regex)
+	{
+	  if ( isset($fields[$field]) && isset($_POST["v"][$field]) ) // if field has been specified by user
+		{
+		  $value = $_POST["v"][$field];
+
+		  if ( !empty($regex) && !preg_match($regex, $value) ) // input doesn't match regex
+			throw new Exception("'{$field}' is formatted incorrectly!");
+
+		  // the field 'time' is special...
+		  if ( $field == "time" )
+			{
+			  $time = explode("-", $value);
+			  $data[$field] = date("Y-m-d H:i:s", mktime(12, 0, 0, (int) $time[0], (int) $time[1], (int) $time[2]));
+			}
+		  else
+			$data[$field] = $value;
+		}
+	  else
+		$data[$field] = null;
+	}
+
+  return $data;
+}
+
+function update_waypoint($data)
+{
+  global $db;
+
+  $waypoint = $data["waypoint"];
+  $waypoint["time"] = $data["time"]; // add time to waypoint info
+
+  $fields = array_keys($waypoint); // get waypoint fields from array
+
+  $update = $db->prepare("INSERT INTO waypoints(" . implode(",", $fields) . ") VALUES(:" . implode(",:", $fields) . ")");
+
+  if (!$update->execute($waypoint))
+	throw new Exception("Waypoint DB update failed!");
+  else if (!is_null($email)) // if it works send a message of success to the sender's email
+	send_email($email, "Success", "Success! {$waypoint["name"]} @ {$waypoint["time"]} ({$waypoint["dist"]})");
+}
+
+function send_update_emails($data)
+{
+  $waypoint = $data["waypoint"];
+  $addrs = $db->query("SELECT m.email FROM mailing_list AS m");
+  $emails = $addrs->fetchAll(PDO::FETCH_COLUMN, 0);
+
+  if (!$emails || empty($emails)) // if there are no emails on list, return
+	return;
+
+  $trail_name = U_TRAIL_NAME;
+
+  if ( (int) $data["dist"] == 0 )
+	{
+	  $subject = "David has started his AT thru-hike!";
+	  $message = "Hey!\n\nDavid has began his journey from Springer Mountain in Georgia. Be sure to check the map for updates @ <http://d-luv.net>.\n\nSincerely,\nDavid";
+	}
+  else if ( (float) $data["dist"] == TOTAL_MILES )
+	{
+	  $subject = "Whoa. {$trail_name} completed his AT thru-hike";
+	  $message = "what is this i don't even.";
+	}
+  else
+	{
+	  $subject = "{$trail_name} is near {$waypoint["civ_city"]}, {$waypoint["civ_state"]}!";
+	  $special_msg = is_null($data["comment"]) ? "" : "\n\"{$data["comment"]}\"\n\n";
+
+	  $message = <<<MSG
+Hey!
+{$special_msg}
+{$trail_name} has made it {$waypoint["dist"]}mi to {$waypoint["name"]}, which is {$waypoint["civ_dist"]}mi from {$waypoint["civ_city"]}, {$waypoint["civ_state"]}.
+
+Love,
+David (aka {$trail_name})
+MSG;
+	}
+
+  for ($i=0; $i<count($emails); $i++)
+	send_email($emails[$i], $subject, $body);
+}
+
+function change_variable($string)
+{
+  $cfg = file_get_contents("nobo_config.php");
+  $parts = preg_replace("/[^a-zA-Z0-9\ \_\-]/", "", explode("=", $string));
+  
+  $new_cfg = preg_replace("/define\(\"U_{$field}\", \"[^\"]+\"\);/i", "define(\"U_" .
+						  strtoupper($parts[0]) . "\", \"{$parts[1]}\")", $config, -1, $matches);
+
+  if ($matches == 1)
+	file_put_contents("nobo_config.php", $new_cfg);
+  else
+	throw new Exception("Failed to update field '{$parts[0]}' with value '{$parts[1]}'");  
+}
+
+function shut_this_thing_down()
+{
+  // move index.php to index2.php
+  // move shutdown.php to index.php
+  // return shutdown success
 }
 
 function send_email($to, $subject, $message)
@@ -52,14 +198,10 @@ function send_email($to, $subject, $message)
 
   return mail($to, $subject, $message, $headers);
 }
-
 function process_email($email)
 {
-  include "plancake.inc.php";
-  $parser = new PlancakeEmailParser($email);
-
-  $date = $parser->getHeader("Date");
-  $body = $parser->getBody();
+  $e_date = $_POST["Date"];
+  $body = $_POST["Body"];
 
   // condense body to all one line and replace any extra whitespace
   $unibody = preg_replace("/\R/", " ", $body);
@@ -67,53 +209,43 @@ function process_email($email)
 
   $matches = array();
 
-  $dist = preg_match_all("/\*([^\*]+)\*/", $unibody, $matches["dist"]);
-  $zip = preg_match_all("/\+([^\+]+)\+/", $unibody, $matches["zip"]);
+  $dist = preg_match_all("/\*(^(?:[1-9]\d*|0)?(?:\.\d+)?$)\*/", $unibody, $matches["dist"]);
+  $zip = preg_match_all("/\+(\d{5})\+/", $unibody, $matches["zip"]);
   $cmd = preg_match_all("/\%([^\%]+)\%/", $unibody, $matches["cmd"]);
   $cmnt = preg_match_all("/\@([^\@]+)\@/", $unibody, $matches["cmnt"]);
-  $date = preg_match_all("/\#([^\#]+)\#/", $unibody, $matches["date"]);
+  $date = preg_match_all("/\#(\d{1,2}\-\d{1,2)\-[\d{2}|\d{4}])\#/", $unibody, $matches["date"]);
 
-  // if there has been a command
-  if ( $cmd )
-	{
-	  $command = strtolower($matches["cmd"][1][0]);
+  // get email address update was sent from
+  $email = preg_match("/[a-z0-9\.\+\-]+@[a-z0-9\-]+\.[a-z0-9\.\-]+/i", $_POST["From"], $from_email);
+														
+  // if user specifies comment...
+  $comment = $cmnt ? $matches["cmnt"][1][0] : null;
 
-	  if ( substr($command,0,2) == "tn:" )
-		$trail_name = substr($command,3);
-	  else if ( $command == "shutdown" )
-		return; // shut this place down.
-	}
-
-  // if user specifies distance
-  if ( $dist )
-	$waypoint = get_waypoint_from_dist($matches["dist"][1][0]);
-  else if ( $zip )
-	$waypoint = get_waypoint_from_zip($matches["zip"][1][0]);
-  else
-	throw new Exception("Zip and distance not specified");
-
-  // if there has been a date specified
+  // if user specifies date
   if ( $date )
 	{
 	  $mdy = explode("-", $matches["date"][1][0]);
-	  $waypoint["time"] = date("Y-m-d H:i:s", mktime(12, 0, 0, (int) $mdy[0], (int) $mdy[1], (int) $mdy[2]));
+	  $time = date("Y-m-d H:i:s", mktime(12, 0, 0, (int) $mdy[0], (int) $mdy[1], (int) $mdy[2]));
 	}
-  else // else default to the date on the email. or if that fails, the date right now.
+  else // else default to the date email claimed to be sent. or if there is none, make it null
 	{
-	  $time = !is_empty($parser->getHeader("date")) ? strtotime($parser->getHeader("date")) : time();
-	  $waypoint["time"] = date("Y-m-d H:i:s", $time);
+	  $time = !empty($e_date) ? date("Y-m-d H:i:s", strtotime($e_date)) : null;
 	}
-														
-  // if user specifies comment...
-  $waypoint["comment"] = $cmnt ? $matches["cmnt"][1][0] : null;
-
-  return $waypoint;  
+  
+  // return all the info, formatted.
+  return array("time"       => $time,
+			   "email"      => $email ? $from_email[0] : DLUV_EMAIL,
+			   "zip"        => $zip ? $matches["zip"][1][0] : null,
+			   "dist"       => $dist ? $matches["dist"][1][0] : null,
+			   "comment"    => $comment,
+			   "command"    => $cmd ? strtolower($matches["cmd"][1][0]) : null);
 }
 
 function get_waypoint_from_dist($dist)
 {
   global $db;
   
+  // get the closest previous shelter
   $closest = $db->query("SELECT s.name, s.latitude, s.longitude, s.dist, s.civ_state, s.civ_city, s.civ_dist " . 
 						"FROM shelters AS s WHERE s.dist <= " . $db->quote($dist) . " ORDER BY s.dist DESC LIMIT 1");
 
@@ -127,15 +259,21 @@ function get_waypoint_from_zip($zipcode)
 {
   global $db;
 
+  // get city that corresponds to zip
   $city = $db->query("SELECT z.city, z.state, z.longitude, z.latitude FROM zipcode AS z " .
 					 "WHERE z.zip=" . $db->quote($zipcode) . " LIMIT 1");
 
   $zip = $city->fetch(PDO::FETCH_ASSOC);
- 
+
+  // if can't find the zipcode in our db, throw an error
+  if (!$zip || empty($zip))
+	throw new Exception("Can't find zipcode: '{$zip}'");
+
   $longitude = (float) $zip["longitude"];
   $latitude = (float) $zip["latitude"];
 
-  $radius = 150;
+  // find distance from zipcode to closest AT waypoint (so distance value will be more accurate)
+  $radius = TRAILTOWN_RADIUS;
 
   $lon1 = $longitude-($radius/abs(cos(deg2rad($latitude))*69));
   $lon2 = $longitude+($radius/abs(cos(deg2rad($latitude))*69));
@@ -146,9 +284,7 @@ function get_waypoint_from_zip($zipcode)
 
   $way = $waypoint->fetch(PDO::FETCH_ASSOC);
 
-  if (!$zip || empty($zip))
-	throw new Exception("Can't find zipcode: '{$zip}'");
-  else if (!$way || empty($way))
+  if (!$way || empty($way))
 	throw new Exception("Can't find closest shelter to zip '{$zip}'");
   else
 	return array( "name" => $zip["city"] . ", " . $zip["state"],
