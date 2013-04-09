@@ -133,8 +133,8 @@ function update_waypoint($data)
 
   if (!$update->execute($waypoint))
 	throw new Exception("Waypoint DB update failed!");
-  else if (!is_null($email)) // if it works send a message of success to the sender's email
-	send_email($email, "Success", "Success! {$waypoint["name"]} @ {$waypoint["time"]} ({$waypoint["dist"]})");
+  else if (isset($data["email"])) // if it works send a message of success to the sender's email
+	send_email($data["email"], "Success", "Success! {$waypoint["name"]} @ {$waypoint["time"]} ({$waypoint["dist"]})");
 }
 
 function send_update_emails($data)
@@ -276,7 +276,7 @@ function get_waypoint_from_zip($zipcode)
 
   // if can't find the zipcode in our db, throw an error
   if (!$zip || empty($zip))
-	throw new Exception("Can't find zipcode: '{$zip}'");
+	throw new Exception("Can't find zipcode: '{$zipcode}'");
 
   $longitude = (float) $zip["longitude"];
   $latitude = (float) $zip["latitude"];
@@ -294,7 +294,7 @@ function get_waypoint_from_zip($zipcode)
   $way = $waypoint->fetch(PDO::FETCH_ASSOC);
 
   if (!$way || empty($way))
-	throw new Exception("Can't find closest shelter to zip '{$zip}'");
+	throw new Exception("Can't find closest shelter to zip '{$zipcode}'");
   else
 	return array( "name" => $zip["city"] . ", " . $zip["state"],
 				  "dist" => (float) $way["way_dist"] + (float) $way["off_dist"],
