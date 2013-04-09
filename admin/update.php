@@ -37,11 +37,11 @@ if ( !empty($_POST) )
 		$data["waypoint"] = null;
 
 	  // check for duplicate waypoint
-	  $dupe_check = $db->query("SELECT count(*) FROM waypoints WHERE dist=" . $db->quote($data["dist"]));
+	  $dupe_check = $db->query("SELECT count(*) FROM waypoints AS w WHERE w.dist=" . $db->quote($data["waypoint"]["dist"]));
 	  $dupe = $dupe_check->fetch(PDO::FETCH_NUM);
 
 	  if ( $dupe[0] > 0 )
-		throw new Exception("There is already a waypoint with distance '{$data["dist"]}'");
+		throw new Exception("There is already a waypoint with distance '{$data["waypoint"]["dist"]}'");
 
 	  // check for commands
 	  if ( !is_null($data["command"]) )
