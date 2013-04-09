@@ -289,7 +289,7 @@ function get_waypoint_from_zip($zipcode)
   $lat1 = $latitude-($radius/69);
   $lat2 = $latitude+($radius/69);
 
-  $shelter = $db->query("SELECT s.dist as shl_dist, ROUND((3956*2*asin(sqrt(power(sin(({$latitude}-s.latitude)*pi()/180/2),2)+cos({$latitude}*pi()/180)*cos(s.latitude*pi()/180)*power(sin(({$longitude}-s.longitude)*pi()/180/2),2)))),5) as off_dist FROM shelters as s where s.longitude BETWEEN {$lon1} AND {$lon2} AND s.latitude BETWEEN {$lat1} AND {$lat2} ORDER BY off_dist ASC LIMIT 1");
+  $shelter = $db->query("SELECT s.dist as shl_dist, ROUND((3956*2*asin(sqrt(power(sin(({$latitude}-s.latitude)*pi()/180/2),2)+cos({$latitude}*pi()/180)*cos(s.latitude*pi()/180)*power(sin(({$longitude}-s.longitude)*pi()/180/2),2)))),1) as off_dist FROM shelters as s where s.longitude BETWEEN {$lon1} AND {$lon2} AND s.latitude BETWEEN {$lat1} AND {$lat2} ORDER BY off_dist ASC LIMIT 1");
 
   $shl = $shelter->fetch(PDO::FETCH_ASSOC);
 
