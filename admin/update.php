@@ -132,6 +132,8 @@ function update_waypoint($data)
 
 function send_update_emails($data)
 {
+  global $db;
+
   $waypoint = $data["waypoint"];
   $addrs = $db->query("SELECT m.email FROM mailing_list AS m");
   $emails = $addrs->fetchAll(PDO::FETCH_COLUMN, 0);
