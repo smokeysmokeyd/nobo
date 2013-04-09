@@ -289,10 +289,7 @@ function get_waypoint_from_zip($zipcode)
   $lat1 = $latitude-($radius/69);
   $lat2 = $latitude+($radius/69);
 
-  $waypoint = $db->query("SELECT w.name as way_name, w.dist as way_dist, ROUND((3956*2*asin(sqrt(power(sin(({$latitude}-w.latitude)*pi()/180/2),2)+cos({$latitude}*pi()/180)*cos(w.latitude*pi()/180)*power(sin(({$longitude}-w.longitude)*pi()/180/2),2)))),5) as off_dist FROM waypoints as w WHERE w.longitude BETWEEN {$lon1} AND {$lon2} AND w.latitude BETWEEN {$lat1} AND {$lat2} ORDER BY off_dist ASC LIMIT 1");
-
-  if (!$waypoint)
-	file_put_contents("../../test.txt", print_r($waypoint->errorInfo(), true));
+  $waypoint = $db->query("SELECT w.name as way_name, w.dist as way_dist, ROUND((3956*2*asin(sqrt(power(sin(({$latitude}-w.latitude)*pi()/180/2),2)+cos({$latitude}*pi()/180)*cos(w.latitude*pi()/180)*power(sin(({$longitude}-w.longitude)*pi()/180/2),2)))),5) as off_dist FROM waypoints as w ORDER BY off_dist ASC LIMIT 1");
 
   $way = $waypoint->fetch(PDO::FETCH_ASSOC);
 
