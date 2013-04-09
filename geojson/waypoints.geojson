@@ -3,7 +3,7 @@
 require "../admin/nobo_config.php";
 
 try {
-  $db = new PDO("mysql:dbname=" . DB_NAME . ";host=" . DB_HOST . "localhost", DB_USER, DB_PASS);
+  $db = new PDO("mysql:dbname=" . DB_NAME . ";host=" . DB_HOST, DB_USER, DB_PASS);
 } catch (PDOException $e) {
   die("Connection Failed: " . $e->getMessage());
   }
