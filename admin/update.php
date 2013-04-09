@@ -291,7 +291,7 @@ function get_waypoint_from_zip($zipcode)
 
   $shelter = $db->query("SELECT s.name as shl_name, s.dist as shl_dist, ROUND((3956*2*asin(sqrt(power(sin(({$latitude}-s.latitude)*pi()/180/2),2)+cos({$latitude}*pi()/180)*cos(s.latitude*pi()/180)*power(sin(({$longitude}-s.longitude)*pi()/180/2),2)))),5) as off_dist FROM shelters as S WHERE s.longitude BETWEEN {$lon1} AND {$lon2} AND s.latitude BETWEEN {$lat1} AND {$lat2} ORDER BY off_dist ASC LIMIT 1");
 
-  $shl = $waypoint->fetch(PDO::FETCH_ASSOC);
+  $shl = $shelter->fetch(PDO::FETCH_ASSOC);
 
   if (!$shl || empty($shl))
 	throw new Exception("Can't find closest shelter to zip '{$zipcode}'");
