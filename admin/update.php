@@ -36,6 +36,13 @@ if ( !empty($_POST) )
 	  else
 		$data["waypoint"] = null;
 
+	  // check for duplicate waypoint
+	  $dupe_check = $db->query("SELECT count(*) FROM waypoints WHERE dist=" . $db->quote($data["dist"]));
+	  $dupe = $dupe_check->fetch(PDO::FETCH_NUM);
+
+	  if ( $dupe[0] > 0 )
+		throw new Exception("There is already a waypoint with distance '{$data["dist"]}'");
+
 	  // check for commands
 	  if ( !is_null($data["command"]) )
 		{
@@ -169,7 +176,7 @@ MSG;
 	}
 
   for ($i=0; $i<count($emails); $i++)
-	send_email($emails[$i], $subject, $body);
+	send_email($emails[$i], $subject, $message);
 }
 
 function change_variable($string)
