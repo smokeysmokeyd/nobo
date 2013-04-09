@@ -293,6 +293,8 @@ function get_waypoint_from_zip($zipcode)
 
   $way = $waypoint->fetch(PDO::FETCH_ASSOC);
 
+  file_put_contents("../../test.txt", print_r($way, true));
+
   if (!$way || empty($way))
 	throw new Exception("Can't find closest shelter to zip '{$zipcode}'");
   else
