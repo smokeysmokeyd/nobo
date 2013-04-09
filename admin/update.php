@@ -281,25 +281,23 @@ function get_waypoint_from_zip($zipcode)
   $longitude = (float) $zip["longitude"];
   $latitude = (float) $zip["latitude"];
 
-  // find distance from zipcode to closest AT waypoint (so distance value will be more accurate)
-  $radius = 1000;
+  // find distance from zipcode to closest AT shelter (so distance value will be more accurate)
+  $radius = TRAILTOWN_RADIUS;
 
   $lon1 = $longitude-($radius/abs(cos(deg2rad($latitude))*69));
   $lon2 = $longitude+($radius/abs(cos(deg2rad($latitude))*69));
   $lat1 = $latitude-($radius/69);
   $lat2 = $latitude+($radius/69);
 
-  $waypoint = $db->query("SELECT w.name as way_name, w.dist as way_dist, ROUND((3956*2*asin(sqrt(power(sin(({$latitude}-w.latitude)*pi()/180/2),2)+cos({$latitude}*pi()/180)*cos(w.latitude*pi()/180)*power(sin(({$longitude}-w.longitude)*pi()/180/2),2)))),5) as off_dist FROM waypoints as w WHERE w.longitude BETWEEN {$lon1} AND {$lon2} AND w.latitude BETWEEN {$lat1} AND {$lat2} ORDER BY off_dist ASC LIMIT 1");
+  $shelter = $db->query("SELECT s.name as shl_name, s.dist as shl_dist, ROUND((3956*2*asin(sqrt(power(sin(({$latitude}-s.latitude)*pi()/180/2),2)+cos({$latitude}*pi()/180)*cos(s.latitude*pi()/180)*power(sin(({$longitude}-s.longitude)*pi()/180/2),2)))),5) as off_dist FROM shelters as S WHERE s.longitude BETWEEN {$lon1} AND {$lon2} AND s.latitude BETWEEN {$lat1} AND {$lat2} ORDER BY off_dist ASC LIMIT 1");
 
-  $way = $waypoint->fetch(PDO::FETCH_ASSOC);
+  $shl = $waypoint->fetch(PDO::FETCH_ASSOC);
 
-  file_put_contents("../../test.txt", print_r($way, true));
-
-  if (!$way || empty($way))
+  if (!$shl || empty($shl))
 	throw new Exception("Can't find closest shelter to zip '{$zipcode}'");
   else
 	return array( "name" => $zip["city"] . ", " . $zip["state"],
-				  "dist" => (float) $way["way_dist"] + (float) $way["off_dist"],
+				  "dist" => (float) $shl["way_dist"] + (float) $shl["off_dist"],
 				  "longitude" => $zip["longitude"],
 				  "latitude" => $zip["latitude"],
 				  "civ_state" => $zip["state"],
