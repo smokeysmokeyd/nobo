@@ -385,7 +385,7 @@ var nobo =
 
 		// if the user is just starting show the date started =)
 		if (nobo.cur_waypoint.features.length == 0 && nobo.startend[0] !== "undefined")
-			select.clickFeature(nobo.katahdin);
+			select.clickFeature(nobo.terminus.features[0]);
 	},
 	render_map : function()
 	{

@@ -218,7 +218,7 @@ function process_email($email)
 
   $matches = array();
 
-  $dist = preg_match_all("/\*(^(?:[1-9]\d*|0)?(?:\.\d+)?$)\*/", $unibody, $matches["dist"]);
+  $dist = preg_match_all("/\*(?:[1-9]\d*|0)?(?:\.\d+)?\*/", $unibody, $matches["dist"]);
   $zip = preg_match_all("/\+(\d{5})\+/", $unibody, $matches["zip"]);
   $cmd = preg_match_all("/\%([^\%]+)\%/", $unibody, $matches["cmd"]);
   $cmnt = preg_match_all("/\@([^\@]+)\@/", $unibody, $matches["cmnt"]);
