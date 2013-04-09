@@ -91,7 +91,7 @@ var style =
 	terminus: {
 	default: {
 			fill: false,
-			externalGraphic: "img/terminus.png",
+			externalGraphic: "style/terminus.png",
 			graphicWidth: 10,
 			graphicHeight: 10,
 
@@ -252,6 +252,7 @@ var nobo =
 				displayProjection: geographic,
 				projection: mercator,
 				zoom: 7,
+				theme: null,
 				eventListeners: {
 					"addlayer": nobo.layer_added,
 					"zoomstart" : nobo.zoom_changed
@@ -315,34 +316,34 @@ var nobo =
 				nobo.geojson_loaded++;
 				nobo[obj.layer.name] = obj.layer;
 
-				if (obj.layer.features.length == 0) // if there are no waypoints we don't want any errors w/ the below code
-					return;
-				
-				// if geojson has waypoints, let's get the current waypoint
-				if (obj.layer.name == "waypoints")			
+				if (obj.layer.features.length > 0) // only if there are features
 					{
-						for(var i=0; i<obj.layer.features.length; i++)
+						// if geojson has waypoints, let's get the current waypoint
+						if (obj.layer.name == "waypoints")			
 							{
-								var dist = parseFloat(obj.layer.features[i].data.dist);
-
-								if ( dist == 0.0 || dist == 2185.9 )								 
+								for(var i=0; i<obj.layer.features.length; i++)
 									{
-										var time = new Date(obj.layer.features[i].data.time);
+										var dist = parseFloat(obj.layer.features[i].data.dist);
 
-										nobo.startend[ (dist == 0.0 ? 0 : 1) ] = months[time.getMonth()] + " " + time.getDate();
-										obj.layer.removeFeatures(obj.layer.features[i]);	
+										if ( dist == 0.0 || dist == 2185.9 )								 
+											{
+												var time = new Date(obj.layer.features[i].data.time);
+
+												nobo.startend[ (dist == 0.0 ? 0 : 1) ] = months[time.getMonth()] + " " + time.getDate();
+												obj.layer.removeFeatures(obj.layer.features[i]);	
 										
-										i--; // idk but it makes it work
+												i--; // idk but it makes it work
+											}
 									}
+
+								nobo.current_waypoint = obj.layer.features[0];
+								obj.layer.removeFeatures(obj.layer.features[0]); // take out current waypoint from past_waypoints
+
 							}
-
-						nobo.current_waypoint = obj.layer.features[0];
-						obj.layer.removeFeatures(obj.layer.features[0]); // take out current waypoint from past_waypoints
-
-					}
-				else if (obj.layer.name == "at_states")
-					{
-						nobo.delaware = obj.layer.features[10];						
+						else if (obj.layer.name == "at_states")
+							{
+								nobo.delaware = obj.layer.features[10];						
+							}
 					}
 
 				if (nobo.geojson_loaded == nobo.style.geojson_files.length)
@@ -382,7 +383,9 @@ var nobo =
 		nobo.map.addControl(hover);
 		nobo.map.addControl(select);
 
-		select.clickFeature(nobo.cur_waypoint.features[0]);
+		// if the user is just starting show the date started =)
+		if (nobo.cur_waypoint.features.length > 0 && nobo.cur_waypoint.features[0].data.dist =="0.0")
+			select.clickFeature(nobo.cur_waypoint.features[0]);
 	},
 	render_map : function()
 	{
@@ -398,8 +401,15 @@ var nobo =
 
 		// create current waypoint layer
 		this.cur_waypoint = new OpenLayers.Layer.Vector("cur_waypoint", {styleMap: new OpenLayers.StyleMap(nobo.style.cur_waypoint)});
-		this.cur_waypoint.addFeatures([this.current_waypoint]);
-		this.map.addLayer(this.cur_waypoint);
+		
+		if (typeof this.current_waypoint !== "undefined") // if user hasn't started there will be no current waypoint...
+			{
+				this.cur_waypoint.addFeatures([this.current_waypoint]);
+				this.map.addLayer(this.cur_waypoint);
+
+				// change AT address to current mileage
+				$("mileage").innerHTML = Math.round(nobo.cur_waypoint.features[0].data.dist);
+			}
 
 		// create ${timeAgo} variable to dynamically return time ago (so it can be accurate even after page load)
 		this.waypoints.styleMap.styles.default.context = this.cur_waypoint.styleMap.styles.default.context = { timeAgo: function(f){ return pretty_date(f.data.time); } };
@@ -409,14 +419,11 @@ var nobo =
 		// update restrictedExtent && marker sizes
 		this.zoom_changed();
 
-		// change AT address to current mileage
-		$("mileage").innerHTML = Math.round(nobo.cur_waypoint.features[0].data.dist);
-
-		// set center of map to current waypoint if there is one...
-		if ( typeof this.current_waypoint !== "undefined" ) 
+		// set center of map to current waypoint (or springer if there is no current waypoint)
+		if (typeof this.current_waypoint !== "undefined")
 			this.map.setCenter([this.current_waypoint.geometry.x, this.current_waypoint.geometry.y]);
 		else
-			this.map.setCenter([katahdin[1], katahdin[0]]);
+			this.map.setCenter(this.katahdin.geometry.getBounds().getCenterLonLat());		
 
 		// create popups (must come after render)
 		this.create_popups();
