@@ -384,8 +384,8 @@ var nobo =
 		nobo.map.addControl(select);
 
 		// if the user is just starting show the date started =)
-		if (nobo.cur_waypoint.features.length > 0 && nobo.cur_waypoint.features[0].data.dist =="0.0")
-			select.clickFeature(nobo.cur_waypoint.features[0]);
+		if (nobo.cur_waypoint.features.length == 0 && nobo.startend[0] !== "undefined")
+			select.clickFeature(nobo.katahdin);
 	},
 	render_map : function()
 	{
