@@ -150,12 +150,12 @@ function send_update_emails($data)
 
   $trail_name = U_TRAIL_NAME;
 
-  if ( (int) $data["dist"] == 0 )
+  if ( (int) $waypoint["dist"] == 0 )
 	{
 	  $subject = "David has started his AT thru-hike!";
 	  $message = "Hey!\n\nDavid has began his journey from Springer Mountain in Georgia. Be sure to check the map for updates @ <http://d-luv.net>.\n\nSincerely,\nDavid";
 	}
-  else if ( (float) $data["dist"] == TOTAL_MILES )
+  else if ( (float) $waypoint["dist"] == TOTAL_MILES )
 	{
 	  $subject = "Whoa. {$trail_name} completed his AT thru-hike";
 	  $message = "what is this i don't even.";
@@ -297,7 +297,7 @@ function get_waypoint_from_zip($zipcode)
 	throw new Exception("Can't find closest shelter to zip '{$zipcode}'");
   else
 	return array( "name" => $zip["city"] . ", " . $zip["state"],
-				  "dist" => floatval($shl["shl_dist"]) + floatval($shl["off_dist"]),
+				  "dist" => (float) $shl["shl_dist"] + (float) $shl["off_dist"],
 				  "longitude" => $zip["longitude"],
 				  "latitude" => $zip["latitude"],
 				  "civ_state" => $zip["state"],
