@@ -45,9 +45,6 @@ var style =
 
 	images: [
 			 "style/terminus.png",
-			 "style/yes80.png",
-			 "style/stamp.gif",
-			 "style/stamp_sent.png"
 			 ],
 	at_states: {
 		fillColor: "transparent",
