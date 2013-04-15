@@ -366,10 +366,10 @@ div.olControlZoom {
   #postcard.sent {
     left: 101%; }
     #postcard.sent #p_stamp:after {
-      background-image: url(stamp_sent.png);
       display: block;
       width: 111px;
-      left: -72px; }
+      left: -72px;
+      background-position: -40px 0; }
 
 #p_msg {
   width: 58%;
@@ -383,7 +383,7 @@ div.olControlZoom {
     border: none;
     line-height: 15px;
     background-color: transparent;
-    background-image: -webkit-linear-gradient(top, transparent, transparent 14px, #e7eff8 0px);
+    background-image: -webkit-linear-gradient(top, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.3) 14px, #e7eff8 0px);
     background-size: 100% 15px; }
     #p_msg textarea::input-placeholder {
       color: #000; }
@@ -434,13 +434,15 @@ div.olControlZoom {
   #p_stamp:hover {
     cursor: default; }
     #p_stamp:hover:after {
+      background-position: 0 0;
       display: block; }
   #p_stamp:after {
     content: "";
     width: 40px;
     height: 45px;
-    background-image: url(stamp.gif);
-    display: none;
+    background-image: url(stamp.png);
+    background-repeat: no-repeat;
+    background-position: -9999px -9999px;
     position: absolute;
     left: -3px;
     top: -2px; }

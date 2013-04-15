@@ -512,10 +512,10 @@ $p_height: floor($p_width * (9.1/15));
 		left: 101%;
 
 		& #p_stamp:after {
-			background-image: url(stamp_sent.png);
 			display: block;
 			width: 111px;
 			left: -72px;
+			background-position: -40px 0;
 		}
 	}	
 
@@ -535,7 +535,7 @@ $p_height: floor($p_width * (9.1/15));
 		line-height: 15px;
 
 		background-color: transparent;
-		background-image: -webkit-linear-gradient(top , transparent, transparent 14px,#E7EFF8 0px);
+		background-image: -webkit-linear-gradient(top , rgba(255,255,255,0.3), rgba(255,255,255,0.3) 14px,#E7EFF8 0px);
 		background-size: 100% 15px;
 
 		&::input-placeholder {
@@ -612,10 +612,12 @@ $s_width: .75 * $s_height;
 
 	border: 1px solid #000;
 
+
 	&:hover {
 		cursor: default;
 
 		&:after {
+			background-position: 0 0;
 			display: block;
 		}
 	}
@@ -624,8 +626,9 @@ $s_width: .75 * $s_height;
 		content: "";
 		width: 40px;
 		height: 45px;
-		background-image: url(stamp.gif);
-		display: none;
+		background-image: url(stamp.png);
+		background-repeat: no-repeat;
+		background-position: -9999px -9999px;
 		position: absolute;
 		left: -3px;
 		top: -2px;
