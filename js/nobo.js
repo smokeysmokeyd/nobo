@@ -45,6 +45,9 @@ var style =
 
 	images: [
 			 "style/terminus.png",
+			 "style/yes80.png",
+			 "style/stamp.gif",
+			 "style/stamp_sent.png"
 			 ],
 	at_states: {
 		fillColor: "transparent",
@@ -233,7 +236,7 @@ var page =
 	send_postcard : function(el)
 	{
 		el.parentNode.className = el.parentNode.className + " sent";
-		setTimeout(function(){$("postcard").style.display = "none"}, 500);
+		setTimeout(function(){$("postcard").style.display = "none"}, 1200);
 	},
 }
 
