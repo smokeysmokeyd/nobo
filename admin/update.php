@@ -167,7 +167,6 @@ TIME: {$data["time"]}
 
 ./{$trail_name}
 MSG;
-	}
 
   for ($i=0; $i<count($emails); $i++)
 	send_email($emails[$i], $subject, $message);
