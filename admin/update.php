@@ -150,28 +150,22 @@ function send_update_emails($data)
 
   $trail_name = U_TRAIL_NAME;
 
-  if ( (int) $waypoint["dist"] == 0 )
-	{
-	  $subject = "David has started his AT thru-hike!";
-	  $message = "Hey!\n\nDavid has began his journey from Springer Mountain in Georgia. Be sure to check the map for updates @ <http://d-luv.net>.\n\nSincerely,\nDavid";
-	}
-  else if ( (float) $waypoint["dist"] == TOTAL_MILES )
-	{
-	  $subject = "Whoa. {$trail_name} completed his AT thru-hike";
-	  $message = "what is this i don't even.";
-	}
+  if ( !is_null($data["comment"]) ) // if user specified comment, make that email subject
+	$subject = $data["comment"];
+  else if ( (int) $waypoint["dist"] == 0 ) // starting out
+	$subject = "the journey begins";
+  else if ( (float) $waypoint["dist"] == TOTAL_MILES ) // finishing
+	$subject = "made it to katahdin";
   else
-	{
-	  $subject = "{$trail_name} is near {$waypoint["civ_city"]}, {$waypoint["civ_state"]}!";
-	  $special_msg = is_null($data["comment"]) ? "" : "\n\"{$data["comment"]}\"\n\n";
-
+	$subject = "(no subject)";
+	
 	  $message = <<<MSG
-Hey!
-{$special_msg}
-{$trail_name} has made it {$waypoint["dist"]}mi to {$waypoint["name"]}, which is {$waypoint["civ_dist"]}mi from {$waypoint["civ_city"]}, {$waypoint["civ_state"]}.
+DIST: {$waypoint["dist"]} mi.
+LOC: {$waypoint["name"]}
+ (near {$waypoint["civ_city"]}, {$waypoint["civ_state"]})
+TIME: {$data["time"]}
 
-Love,
-David (aka {$trail_name})
+./{$trail_name}
 MSG;
 	}
 
