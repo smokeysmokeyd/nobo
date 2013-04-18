@@ -487,17 +487,10 @@ var nobo =
 		$("zoom_in").className = (zoom_lvl == 8) ? "disabled" : "olButton";
 		$("zoom_out").className = (zoom_lvl == 1) ? "disabled" : "olButton";
 
-		// only display waypoints if zoom is greater than 6
-		nobo.waypoints.setVisibility( zoom_lvl>6 );
-
-		if (zoom_lvl< 6)
-			{
-				nobo.waypoints.setVisibility(false);
-			}
-		else
-			{
-				nobo.waypoints.setVisibility(true);
-			}
+		// only display waypoints if zoom is greatr or eq to 6
+		nobo.waypoints.setVisibility( zoom_lvl>=6 );
+		// only display cur_waypoint if zoom is grtr or eq to 4
+		nobo.cur_waypoint.setVisibility( zoom_lvl <= 4);
 
 		nobo.terminus.refresh();
 
