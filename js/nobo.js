@@ -5,6 +5,8 @@
 // peace be with you,
 // -david
 
+
+// after certain zoom leve, no restricted extent!!
 window.addEventListener("load", function() { 
 		// super fancy fade-in to loading page
 		document.body.className = "loaded";
@@ -272,7 +274,7 @@ var nobo =
 		// restrict user zoom levels
 		// thanks to Jonathan & stackoverflow for this (question 4240610)
 		this.map.isValidZoomLevel = function(zoomLevel) {
-			return ( (zoomLevel != null) && (zoomLevel >= 3) && (zoomLevel <= 8) );
+			return ( (zoomLevel != null) && ( zoomLevel > 0 ) && (zoomLevel <= 8) );
 		}
 
 		// start & end dates
@@ -416,6 +418,8 @@ var nobo =
 
 		this.terminus.styleMap.styles.default.propertyStyles.label = true;
 
+		this.broken_through = false;
+
 		// update restrictedExtent && marker sizes
 		this.zoom_changed();
 
@@ -470,23 +474,29 @@ var nobo =
 		nobo.waypoints.refresh();
 
 		// set restrictedExtent based upon terminus locations & bounds padding
-		nobo.map.setOptions({restrictedExtent: OpenLayers.Bounds.fromArray([katahdin[1]-padding_x, katahdin[0]-padding_y, springer[1]+padding_x, springer[0]+padding_y])});
-
+		// but not if the user is far up enough! (and the user has broken through)
+		if ( zoom_lvl >4 && !nobo.broken_through  )
+			nobo.map.setOptions({restrictedExtent: OpenLayers.Bounds.fromArray([katahdin[1]-padding_x, katahdin[0]-padding_y, springer[1]+padding_x, springer[0]+padding_y])});
+		else if ( zoom_lvl <= 4 )
+			{
+				nobo.broken_through = true;
+				nobo.map.setOptions({restrictedExtent: null});
+			}
 
 		// 'disable' zoom buttons if at max or min zoom
 		$("zoom_in").className = (zoom_lvl == 8) ? "disabled" : "olButton";
-		$("zoom_out").className = (zoom_lvl == 6) ? "disabled" : "olButton";
+		$("zoom_out").className = (zoom_lvl == 1) ? "disabled" : "olButton";
 
-		// only display waypoints if zoom is 6
-		if (zoom_lvl == 6)
+		// only display waypoints if zoom is greater than 6
+		nobo.waypoints.setVisibility( zoom_lvl>6 );
+
+		if (zoom_lvl< 6)
 			{
 				nobo.waypoints.setVisibility(false);
-				nobo.terminus.styleMap.styles.default.defaultStyle.label = "${mtn}";
 			}
 		else
 			{
 				nobo.waypoints.setVisibility(true);
-				nobo.terminus.styleMap.styles.default.defaultStyle.label = "${mtn}";
 			}
 
 		nobo.terminus.refresh();
