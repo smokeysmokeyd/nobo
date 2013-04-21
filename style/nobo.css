@@ -1,8 +1,3 @@
-* {
-  -moz-box-sizing: border-box;
-  -webkit-box-sizing: border-box;
-  box-sizing: border-box; }
-
 /* Eric Meyer's Reset CSS v2.0 - http://cssreset.com */
 html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, b, u, i, center, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, canvas, details, embed, figure, figcaption, footer, header, hgroup, menu, nav, output, ruby, section, summary, time, mark, audio, video {
   border: 0;
@@ -37,12 +32,6 @@ table {
   font-weight: normal;
   font-style: normal; }
 
-@font-face {
-  font-family: 'bakersville';
-  src: url("bakersville.woff") format("woff");
-  font-weight: nomral;
-  font-style: normal; }
-
 @media screen and (max-width: 800px) {
   nav {
     left: 2%;
@@ -59,6 +48,11 @@ table {
   #controls {
     right: 14%;
     bottom: 3%; } }
+* {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box; }
+
 html, body {
   font-family: tahoma, verdana, sans-serif;
   font-size: 1em;
@@ -68,44 +62,16 @@ html, body {
   height: 100%; }
 
 body {
-  background: white;
-  -moz-transition: background 2s ease-in-out;
-  -webkit-transition: background 2s ease-in-out;
-  transition: background 2s ease-in-out;
-  overflow: hidden;
-  -webkit-touch-callout: none;
+  -webkit-transition: background 0.5s ease-in-out;
+  -moz-transition: background 0.5s ease-in-out;
+  transition: background 0.5s ease-in-out;
   -webkit-user-select: none;
-  -khtml-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
-  user-select: none; }
+  user-select: none;
+  background: white;
+  overflow: hidden; }
   body.loaded {
-    background: black; }
-
-nav {
-  position: absolute;
-  z-index: 1000;
-  opacity: 1; }
-  nav:hover {
-    opacity: 1; }
-
-#map {
-  width: 100%;
-  height: 100%; }
-  #map.loaded {
-    background: black; }
-
-nav {
-  position: absolute;
-  z-index: 1000;
-  opacity: 1; }
-  nav:hover {
-    opacity: 1; }
-
-#map {
-  width: 100%;
-  height: 100%; }
-  #map.loaded {
     background: black; }
 
 nav {
@@ -122,21 +88,15 @@ nav {
   #map.loaded {
     opacity: 1; }
   #map div.loaded {
-    opacity: 1 !important;
     -webkit-transition: opacity 3s ease-in-out;
     -moz-transition: opacity 3s ease-in-out;
-    -o-transition: opacity 3s ease-in-out;
-    -ms-transition: opacity 3s ease-in-out;
-    transition: opacity 3s ease-in-out; }
+    transition: opacity 3s ease-in-out;
+    opacity: 1 !important; }
 
 #logo {
   float: left;
   padding-right: 5px;
   border-right: 1px solid white; }
-
-#loading_txt {
-  font-family: 'dluv-cursive';
-  font-size: 90px; }
 
 #menu {
   font-family: "ambitsek", sans-serif;
@@ -146,26 +106,20 @@ nav {
   margin: 0 0 0 5px;
   padding: 0;
   list-style-type: none;
-  color: #fff;
-  -webkit-transition: opacity 2s ease;
-  -moz-transition: opacity 2s ease;
-  -o-transition: opacity 2s ease;
-  -ms-transition: opacity 2s ease;
-  transition: opacity 2s ease; }
-  #menu:not(.loading) > *:not(.loading) {
+  color: #fff; }
+  #menu.loaded li {
     opacity: 1; }
-  #menu:not(.loading) > .loading {
-    opacity: 0;
+  #menu.pre #m_postcard, #menu.pre #m_good_ppl {
     display: none; }
-  #menu.loading > *:not(.loading) {
-    opacity: 0; }
-  #menu.loading > .loading {
-    opacity: 1; }
   #menu li {
     line-height: 10px;
     height: 10px;
     text-align: justify;
-    width: 170px; }
+    opacity: 0;
+    width: 170px;
+    -webkit-transition: opacity 3s ease-in-out;
+    -moz-transition: opacity 3s ease-in-out;
+    transition: opacity 3s ease-in-out; }
     #menu li:hover {
       cursor: pointer;
       padding: 0 0 0 4px; }
@@ -184,6 +138,60 @@ nav {
         #menu li:hover.y {
           background-color: yellow;
           color: #000; }
+
+#popup {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 10000000000000000;
+  background-color: rgba(0, 0, 0, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  border-radius: 2px 2px 2px 0;
+  padding: 4px;
+  color: #fff;
+  font-family: "ambitsek", sans-serif;
+  font-size: 8px; }
+  #popup.hidden {
+    opacity: 0;
+    z-index: -100; }
+  #popup.displayed {
+    width: 290px;
+    height: 76px;
+    margin-left: -145px;
+    margin-top: -38px; }
+    #popup.displayed #popup_msg {
+      line-height: 22px; }
+  #popup.loading {
+    width: 190px;
+    height: 90px;
+    margin-top: -45px;
+    margin-left: -95px; }
+    #popup.loading #popup_msg {
+      background-image: url(loading.png);
+      background-repeat: no-repeat;
+      background-position: center;
+      line-height: 120px;
+      text-indent: 30px; }
+    #popup.loading #close_popup {
+      display: none; }
+
+#popup_msg {
+  height: 100%;
+  width: 100%;
+  line-height: 82px; }
+
+#close_popup {
+  display: block;
+  position: absolute;
+  bottom: -14px;
+  right: -1px;
+  padding: 3px;
+  background-color: rgba(255, 255, 255, 0.7);
+  color: #000;
+  border-radius: 0 0 2px 2px; }
+  #close_popup:hover {
+    cursor: pointer;
+    text-decoration: underline; }
 
 #controls {
   font-family: "ambitsek", sans-serif;
@@ -223,33 +231,6 @@ nav {
 div.olControlZoom {
   display: none; }
 
-#select_popup {
-  background-color: white !important;
-  opacity: 1;
-  border-radius: 2px;
-  color: #000;
-  overflow: visible !important; }
-  #select_popup .olPopupContent {
-    text-align: center;
-    line-height: 8px; }
-  #select_popup:after {
-    content: " ";
-    position: absolute;
-    left: 50%;
-    z-index: 0;
-    border-left: 4px solid transparent;
-    border-right: 4px solid transparent; }
-  #select_popup.t:after {
-    bottom: -8px;
-    margin-left: -4px;
-    border-bottom: 4px solid transparent;
-    border-top: 4px solid white; }
-  #select_popup.b:after {
-    top: -8px;
-    margin-left: -4px;
-    border-bottom: 4px solid white;
-    border-top: 4px solid transparent; }
-
 .content {
   font-family: tahoma, verdana, sans-serif;
   font-size: 10px;
@@ -258,29 +239,9 @@ div.olControlZoom {
   top: 3%;
   left: 14%;
   margin-top: 40px;
-  background: -moz-radial-gradient(center, ellipse cover, white 0%, rgba(255, 255, 255, 0.92) 100%);
-  /* FF3.6+ */
-  background: -webkit-gradient(radial, center center, 0px, center center, 100%, color-stop(0%, white), color-stop(100%, rgba(255, 255, 255, 0.92)));
-  /* Chrome,Safari4+ */
-  background: -webkit-radial-gradient(center, ellipse cover, white 0%, rgba(255, 255, 255, 0.92) 100%);
-  /* Chrome10+,Safari5.1+ */
-  background: -o-radial-gradient(center, ellipse cover, white 0%, rgba(255, 255, 255, 0.92) 100%);
-  /* Opera 12+ */
-  background: -ms-radial-gradient(center, ellipse cover, white 0%, rgba(255, 255, 255, 0.92) 100%);
-  /* IE10+ */
-  background: radial-gradient(ellipse at center, white 0%, rgba(255, 255, 255, 0.92) 100%);
-  /* W3C */
+  background-image: -webkit-radial-gradient(center,  ellipse, white 0%, rgba(255, 255, 255, 0.92) 100%);
+  background-image: radial-gradient(  ellipse at center, white 0%, rgba(255, 255, 255, 0.92) 100%);
   z-index: 10000000; }
-
-#content {
-  width: 100%;
-  height: 100%;
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 100000000; }
 
 #good_ppl {
   width: 310px;
@@ -359,8 +320,9 @@ div.olControlZoom {
   height: 230px;
   padding: 7px;
   z-index: 100000;
-  -webkit-transition: left 0.7s ease-in;
-  -webkit-transition-delay: .5s; }
+  -webkit-transition: 0.5s 0.7s left ease-in;
+  -moz-transition: 0.5s 0.7s left ease-in;
+  transition: 0.5s 0.7s left ease-in; }
   #postcard > div:not(#p_stamp) {
     float: left; }
   #postcard.sent {
@@ -382,8 +344,10 @@ div.olControlZoom {
     font: inherit;
     border: none;
     line-height: 15px;
-    background-color: transparent;
-    background-image: -webkit-linear-gradient(top, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.3) 14px, #e7eff8 0px);
+    background-color: rgba(255, 255, 255, 0.3);
+    background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, rgba(255, 255, 255, 0.3)), color-stop(100%, rgba(255, 255, 255, 0.3) 14px #e7eff8 0px));
+    background-image: -webkit-linear-gradient(top, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.3) 14px #e7eff8 0px);
+    background-image: linear-gradient(to bottom,rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.3) 14px #e7eff8 0px);
     background-size: 100% 15px; }
     #p_msg textarea::input-placeholder {
       color: #000; }
@@ -446,10 +410,3 @@ div.olControlZoom {
     position: absolute;
     left: -3px;
     top: -2px; }
-
-div.olPopup:hover {
-  cursor: default; }
-
-div.olPopupContent {
-  font-family: 'ambitsek';
-  font-size: 8px; }

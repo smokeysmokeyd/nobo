@@ -11,7 +11,7 @@ window.addEventListener("load", function() {
 		// super fancy fade-in to loading page
 		document.body.className = "loaded";
 		// wait until transition finished and then begin...
-		setTimeout(function(){page.init(style);}, 2000);
+		setTimeout(function(){page.init(style);}, 500);
 	}, false);
 
 var aerial = ["http://otile1.mqcdn.com/tiles/1.0.0/sat/${z}/${x}/${y}.jpg",
@@ -174,11 +174,10 @@ var page =
 		$("menu").addEventListener("click", function(e){ page.menu_clicked(e.target); }, false);
 		$("p_stamp").addEventListener("click", function(){ page.send_postcard(this); }, false);
 		$("map").addEventListener("click", function(){ page.menu_clicked(null); }, false);
+		$("close_popup").addEventListener("click", function(){ $("popup").className = "hidden" }, false);
 
-		//$("_stamp").addEventListener("");
+		popup_msg("images", true);
 
-		loading_status("images");
-		//return;
 		this.style = style;
 		this.fades = {};
 		this.preload_imgs(style.images, page.imgs_loaded);
@@ -283,7 +282,7 @@ var nobo =
 		// start geojson load
 
 		this.geojson_loaded = 0;
-		loading_status("geojson");
+		popup_msg("gis data", true);
 
 		for (var i=0; i<style.geojson_files.length; i++)
 			OpenLayers.Request.GET({ url: "geojson/" + style.geojson_files[i] + ".geojson" });
@@ -323,6 +322,7 @@ var nobo =
 						// if geojson has waypoints, let's get the current waypoint
 						if (obj.layer.name == "waypoints")			
 							{
+								// remove the waypoints that were reported at the start & end of trail...
 								for(var i=0; i<obj.layer.features.length; i++)
 									{
 										var dist = parseFloat(obj.layer.features[i].data.dist);
@@ -352,16 +352,52 @@ var nobo =
 					nobo.render_map();
 			}
 	},
-	create_popups : function()
+	render_map : function()
 	{
-		var layer = nobo.waypoints;
+		// add blank base layer thanks to R.K @ gis.stackoverflow.com
+		this.map.addLayer(new OpenLayers.Layer("", {isBaseLayer: true}));
 
-		nobo.select_popup = new OpenLayers.Popup.Anchored("select_popup", new OpenLayers.LonLat(0,0));
-		nobo.select_popup.autoSize = true;
-		nobo.select_popup.tooltipWidth = 10;
-		nobo.select_popup.padding = 0;
-		nobo.select_popup.forceRelativePosition = {left: "m"};
+		// create terminus icons
+		this.terminus = new OpenLayers.Layer.Vector("terminus", {styleMap: new OpenLayers.StyleMap(nobo.style.terminus)});
+		this.katahdin = new OpenLayers.Feature.Vector(new OpenLayers.Geometry.Point(katahdin[1], katahdin[0]), {mtn: "Springer Mountain", pos: "Start", align:"lr", time: nobo.startend[0], dist: 0.0});
+		this.springer = new OpenLayers.Feature.Vector(new OpenLayers.Geometry.Point(springer[1], springer[0]), {mtn: "Mount Katahdin", pos: "End", time: nobo.startend[1], dist: 2185.9});
+		this.terminus.addFeatures([this.katahdin, this.springer]);
+		this.map.addLayer(this.terminus);
+
+		//make terminus label be considered as dynamic
+		this.terminus.styleMap.styles.default.propertyStyles.label = true;
+
+		// create current waypoint layer
+		this.cur_waypoint = new OpenLayers.Layer.Vector("cur_waypoint", {styleMap: new OpenLayers.StyleMap(nobo.style.cur_waypoint)});
 		
+		// if there is a current waypoint...
+		if (typeof this.current_waypoint !== "undefined")
+			{
+				this.cur_waypoint.addFeatures([this.current_waypoint]);
+				this.map.addLayer(this.cur_waypoint);
+
+				// change AT address to current mileage
+				$("mileage").innerHTML = Math.round(nobo.cur_waypoint.features[0].data.dist);
+
+				// create ${timeAgo} variable to dynamically return time ago (so it can be accurate even after page load)
+				this.cur_waypoint.styleMap.styles.default.context = { timeAgo: function(f){ return pretty_date(f.data.time); } };
+
+				// set the center of the map to the current waypoint
+				this.map.setCenter([this.current_waypoint.geometry.x, this.current_waypoint.geometry.y]);
+			}
+
+		// create ${timeAgo} variable to dynamically return time ago (so it can be accurate even after page load)
+		if (typeof this.waypoints !== "undefined")
+			this.waypoints.styleMap.styles.default.context = { timeAgo: function(f){ return pretty_date(f.data.time); } };
+
+		// used to see if user has 'broken through' the map so they can navigate without restricted bounds
+		this.broken_through = false;
+
+		// set center of map at springer w/ zoom level 5 if there Is no current waypoinnt
+		if (typeof this.current_waypoint === "undefined")
+			this.map.setCenter(this.katahdin.geometry.getBounds().getCenterLonLat(), 5);	
+
+		// add feature clicking and hover events, etc...
 		var hover = new OpenLayers.Control.SelectFeature([nobo.waypoints, nobo.terminus, nobo.cur_waypoint], {
 				autoActivate: true,
 				hover: true,
@@ -380,61 +416,13 @@ var nobo =
 					featureunhighlighted: function(obj){ obj.feature.selected = false; }
 				}
 			});
-
-		//nobo.map.addPopup(nobo.select_popup);
+		
+		// add hover & click events to map
 		nobo.map.addControl(hover);
 		nobo.map.addControl(select);
 
-		// if the user is just starting show the date started =)
-		if (nobo.cur_waypoint.features.length == 0 && nobo.startend[0] !== "undefined")
-			select.clickFeature(nobo.terminus.features[0]);
-	},
-	render_map : function()
-	{
-		// add blank base layer thanks to R.K @ gis.stackoverflow.com
-		this.map.addLayer(new OpenLayers.Layer("", {isBaseLayer: true}));
-
-		// create terminus icons
-		this.terminus = new OpenLayers.Layer.Vector("terminus", {styleMap: new OpenLayers.StyleMap(nobo.style.terminus)});
-		this.katahdin = new OpenLayers.Feature.Vector(new OpenLayers.Geometry.Point(katahdin[1], katahdin[0]), {mtn: "Springer Mountain", pos: "Start", align:"lr", time: nobo.startend[0], dist: 0.0});
-		this.springer = new OpenLayers.Feature.Vector(new OpenLayers.Geometry.Point(springer[1], springer[0]), {mtn: "Mount Katahdin", pos: "End", time: nobo.startend[1], dist: 2185.9});
-		this.terminus.addFeatures([this.katahdin, this.springer]);
-		this.map.addLayer(this.terminus);
-
-		// create current waypoint layer
-		this.cur_waypoint = new OpenLayers.Layer.Vector("cur_waypoint", {styleMap: new OpenLayers.StyleMap(nobo.style.cur_waypoint)});
-		
-		if (typeof this.current_waypoint !== "undefined") // if user hasn't started there will be no current waypoint...
-			{
-				this.cur_waypoint.addFeatures([this.current_waypoint]);
-				this.map.addLayer(this.cur_waypoint);
-
-				// change AT address to current mileage
-				$("mileage").innerHTML = Math.round(nobo.cur_waypoint.features[0].data.dist);
-			}
-
-		// create ${timeAgo} variable to dynamically return time ago (so it can be accurate even after page load)
-		this.waypoints.styleMap.styles.default.context = this.cur_waypoint.styleMap.styles.default.context = { timeAgo: function(f){ return pretty_date(f.data.time); } };
-
-		this.terminus.styleMap.styles.default.propertyStyles.label = true;
-
-		this.broken_through = false;
-
-		// update restrictedExtent && marker sizes
-		this.zoom_changed();
-
-		// set center of map to current waypoint (or springer if there is no current waypoint)
-		if (typeof this.current_waypoint !== "undefined")
-			this.map.setCenter([this.current_waypoint.geometry.x, this.current_waypoint.geometry.y]);
-		else
-			this.map.setCenter(this.katahdin.geometry.getBounds().getCenterLonLat());		
-
-		// create popups (must come after render)
-		this.create_popups();
-
 		// add mapquest tiles
-
-		loading_status("mapquest tiles");
+		popup_msg("satellite imgs", true);
 
 		this.tiles = new OpenLayers.Layer.XYZ("mq_aerial", aerial, this.style.mq_options);
 		this.tiles.events.register("loadend", this, nobo.tiles_loaded);
@@ -445,13 +433,26 @@ var nobo =
 	},
 	tiles_loaded : function(layer)
 	{
+		// if there's no current waypoint, then user must have not started trail or have just started trail.
+		// so let's show the end-user a message bout it. beacuse otherwise they'll see an empty map.
+
+		// if there aren't any current waypoints, we want to show a different page!
+		if (nobo.cur_waypoint.features.length == 0)
+			{
+				popup_msg( (nobo.startend[0] !== "undefined") ? "David started his hike on " + nobo.startend[0] + "! He will be updating his position on this website every once in a while. :-)" : "Dave hasn't started his thru-hike yet! But you can sign up for the mailing list and you'll get an email when he does! :-)");
+
+				$("menu").className = "loaded pre";
+			}
+		else
+			{
+				
+				$("menu").className = "loaded";
+			}
+
 		layer.element.className = layer.element.className + " loaded";
+
 		// we don't need loadend event listener anymore, so might as well remove
 		layer.object.events.remove("loadend");
-
-		// hide loading message and fade in map
-		$("menu").className = "";
-		
 	},
 	zoom_changed : function(zoom)
 	{
@@ -469,9 +470,12 @@ var nobo =
 		var scale = 1 - ((9-zoom_lvl)*.20); 
 
 		// scale the waypoint positions icons
-		nobo.waypoints.styleMap.styles.default.defaultStyle = OpenLayers.Util.applyDefaults( { pointRadius: 2.5 * ( 1 + Math.abs(5 -zoom_lvl)*.4) }, nobo.style.waypoints.default);
+		if ( typeof nobo.waypoints !== "undefined" )
+			{
+				nobo.waypoints.styleMap.styles.default.defaultStyle = OpenLayers.Util.applyDefaults( { pointRadius: 2.5 * ( 1 + Math.abs(5 -zoom_lvl)*.4) }, nobo.style.waypoints.default);
 		
-		nobo.waypoints.refresh();
+				nobo.waypoints.refresh();
+			}
 
 		// set restrictedExtent based upon terminus locations & bounds padding
 		// but not if the user is far up enough! (and the user has broken through)
@@ -488,13 +492,11 @@ var nobo =
 		$("zoom_out").className = (zoom_lvl == 1) ? "disabled" : "olButton";
 
 		// only display waypoints if zoom is greatr or eq to 6
-		nobo.waypoints.setVisibility( zoom_lvl>=6 );
+		if ( typeof nobo.waypoints !== "undefined" ) nobo.waypoints.setVisibility( zoom_lvl>=6 );
 		// only display cur_waypoint if zoom is grtr or eq to 4
-		nobo.cur_waypoint.setVisibility( zoom_lvl <= 4);
+		if ( typeof nobo.cur_waypoint !== "undefined" ) nobo.cur_waypoint.setVisibility( zoom_lvl >= 4);
 
 		nobo.terminus.refresh();
-
-
 	}
 };
 
@@ -519,38 +521,19 @@ function pretty_date(time)
 		day_diff < 31 && day_diff + " days ago";
 }
 
-function loading_status(msg)
-{							
-	if (msg == true)
-		$("menu").className = "loading";
-	else if (msg == false)
-		$("menu").className = "";
-	else
-		$("loading_msg").innerHTML = msg;
-}
-
-function add_select_feature(layer, map)
+function popup_msg(msg, loading, close)
 {
-	nobo.map.addControl(new OpenLayers.Control.SelectFeature([nobo.waypoints, nobo.terminus], {
-			autoActivate : true,
-			hover: true,
-			renderIntent: "hover",
-			highlightOnly: true,
-			eventListeners: {
-				beforefeaturehighlighted: function(obj) { return !obj.feature.selected } // no state change when feature is selected
-			}
-	}));
+	var is_loading = loading || false;
+	var is_closing = close || false;
 
-	nobo.map.addControl(new OpenLayers.Control.SelectFeature([nobo.waypoints, nobo.terminus], {
-			autoActivate: true,
-			clickout: true,
-			eventListeners: {
-				beforefeaturehighlighted: function(obj){ obj.feature.selected = true; },
-				featureunhighlighted: function(obj){ obj.feature.selected = false; }
-			}
-	}));
-
-	//map.addControls([hover, select]);
+	if ( is_closing )
+		$("popup").className = is_closing ? "loading hidden" : "hidden";
+	else if ( is_loading && $("popup").className != "loading" )
+		$("popup").className = "loading";
+	else if ( !is_loading && $("popup").className != "displayed" )
+		$("popup").className = "displayed";
+	
+	$("popup_msg").innerHTML = msg;
 }
 
 function log()
