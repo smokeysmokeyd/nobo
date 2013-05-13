@@ -134,7 +134,7 @@ function update_waypoint($data)
   if (!$update->execute($waypoint))
 	throw new Exception("Waypoint DB update failed!");
   else if (isset($data["email"])) // if it works send a message of success to the sender's email
-	send_email($data["email"], "Success", "{$waypoint["name"]}"]})");
+	send_email($data["email"], "Success", "{$waypoint["name"]}");
 }
 
 function send_update_emails($data)
@@ -200,6 +200,7 @@ function send_email($to, $subject, $message)
 
   return mail($to, $subject, $message, $headers);
 }
+
 function process_email($email)
 {
   $e_date = $_POST["Date"];

@@ -7,12 +7,12 @@
 
 
 // after certain zoom leve, no restricted extent!!
-window.addEventListener("load", function() { 
+window.onload = function() { 
 		// super fancy fade-in to loading page
 		document.body.className = "loaded";
 		// wait until transition finished and then begin...
 		setTimeout(function(){page.init(style);}, 500);
-	}, false);
+};
 
 var aerial = ["http://otile1.mqcdn.com/tiles/1.0.0/sat/${z}/${x}/${y}.jpg",
 			  "http://otile2.mqcdn.com/tiles/1.0.0/sat/${z}/${x}/${y}.jpg",
@@ -152,6 +152,9 @@ var style =
 			label: "${name}\nnear ${civ_city}, ${civ_state}"
 			
 	} 
+	},
+	mq_options: {
+		transitionEffect: 'resize'
 	}
 };
 
@@ -171,10 +174,15 @@ var page =
 	{
 		// bind event listeners
 
+		// sorry IE folks
+		if ( window.navigator.appName.indexOf("Internet Explorer") > -1 )
+			return document.getElementById("ie_msg").style.display = "table";
+
 		$("menu").addEventListener("click", function(e){ page.menu_clicked(e.target); }, false);
 		$("p_stamp").addEventListener("click", function(){ page.send_postcard(this); }, false);
 		$("map").addEventListener("click", function(){ page.menu_clicked(null); }, false);
 		$("close_popup").addEventListener("click", function(){ $("popup").className = "hidden" }, false);
+		$("updates_submit").addEventListener("click", function(){ page.updates_signup(); }, false);
 
 		popup_msg("images", true);
 
@@ -222,20 +230,70 @@ var page =
 		var id = ( el == null ) ? "" : el.getAttribute("id").substring(2);
 		var menu_opts = ["postcard", "updates", "good_ppl"];
 
+		if ( el == null )
+			popup_msg("", false, true);
+
 		for (var i=0; i<menu_opts.length; i++)
 			$(menu_opts[i]).style.display = ( el == null ? "none" : ( (menu_opts[i] == id) ? ($(id).style.display=="block" ? "none" : "block") : "none" ));
 			
+
+		// must blue focus on any text fields if they are not displayed so keyboarddefaults works currectly
 		if (id == "postcard")
-			{
-				$(id).className = "content";
-				$("p_text").focus();
-			}
+			$("p_text").focus();
+		else if (id == "updates")
+			$("updates_email").focus();
+		else {
+			$("updates_email").blur();
+			$("p_text").blur();
+		}
 	},
 	send_postcard : function(el)
 	{
-		el.parentNode.className = el.parentNode.className + " sent";
-		setTimeout(function(){$("postcard").style.display = "none"}, 1200);
+		OpenLayers.Request.POST({
+				url: "ajax.php",
+				data: OpenLayers.Util.getParameterString({p_msg: $("p_text").value}),
+				headers: {
+					"Content-type": "application/x-www-form-urlencoded"
+				},
+				callback: function(req) {
+					var response = JSON.parse(req.responseText);
+					
+					if ( typeof response !== "object" )
+						return popup_msg("An unknown error ocurred", false);
+					else if ( typeof response.error !== "undefined" )
+						return popup_msg("Error: " + response.error, false);
+					else {
+						el.parentNode.className = el.parentNode.className + " sent";
+						setTimeout(function(){
+								$("postcard").style.display = "none";
+								$("postcard").className = "content";
+								popup_msg("Thanks for sending me a message! I am sure I will love to read it and I promise to respond! Much Love. -D", false);
+							}, 1200);
+					}
+				}});
+
 	},
+	updates_signup : function()
+	{
+		OpenLayers.Request.POST({
+				url: "ajax.php",
+				data: OpenLayers.Util.getParameterString({u_email: $("updates_email").value}),
+				headers: {
+					"Content-type": "application/x-www-form-urlencoded"
+				},
+				callback: function(req) {
+					var response = JSON.parse(req.responseText);
+					
+					if ( typeof response !== "object" )
+						return popup_msg("An unknown error ocurred", false);
+					else if ( typeof response.error !== "undefined" )
+						return popup_msg("Error: " + response.error, false);
+					else if ( typeof response.msg !== "undefined" )
+						popup_msg(response.msg, false);
+
+					$("updates_info").innerHTML = "<div>" + $("updates_email").value + "</div>";
+				}});
+	}
 }
 
 var nobo = 
@@ -265,7 +323,13 @@ var nobo =
 					new OpenLayers.Control.Navigation({
 							dragPanOptions: { enableKinetic: true }
 						}),
-					new OpenLayers.Control.KeyboardDefaults()]
+					new OpenLayers.Control.KeyboardDefaults({
+							badElements: ["updates_email", "p_text"]
+						}),
+					new OpenLayers.Control.ScaleBar({
+							div: document.getElementById("scalebar"),
+							displaySystem: "english",
+						})]
 			});
 
 		this.map.render("map");
@@ -329,7 +393,8 @@ var nobo =
 
 										if ( dist == 0.0 || dist == 2185.9 )								 
 											{
-												var time = new Date(obj.layer.features[i].data.time);
+												var time = new Date(obj.layer.features[i].data.time.replace(/-/g, "/"));
+												console.log(time);
 
 												nobo.startend[ (dist == 0.0 ? 0 : 1) ] = months[time.getMonth()] + " " + time.getDate();
 												obj.layer.removeFeatures(obj.layer.features[i]);	
@@ -383,7 +448,7 @@ var nobo =
 				this.cur_waypoint.styleMap.styles.default.context = { timeAgo: function(f){ return pretty_date(f.data.time); } };
 
 				// set the center of the map to the current waypoint
-				this.map.setCenter([this.current_waypoint.geometry.x, this.current_waypoint.geometry.y]);
+				this.map.setCenter([this.current_waypoint.geometry.x, this.current_waypoint.geometry.y], 5);
 			}
 
 		// create ${timeAgo} variable to dynamically return time ago (so it can be accurate even after page load)
@@ -416,6 +481,8 @@ var nobo =
 					featureunhighlighted: function(obj){ obj.feature.selected = false; }
 				}
 			});
+
+		this.zoom_changed();
 		
 		// add hover & click events to map
 		nobo.map.addControl(hover);
@@ -438,21 +505,18 @@ var nobo =
 
 		// if there aren't any current waypoints, we want to show a different page!
 		if (nobo.cur_waypoint.features.length == 0)
-			{
-				popup_msg( (nobo.startend[0] !== "undefined") ? "David started his hike on " + nobo.startend[0] + "! He will be updating his position on this website every once in a while. :-)" : "Dave hasn't started his thru-hike yet! But you can sign up for the mailing list and you'll get an email when he does! :-)");
-
-				$("menu").className = "loaded pre";
-			}
+			popup_msg( (nobo.startend[0] !== "undefined") ? "Dave started his hike on " + nobo.startend[0] + "! Check back in the next few weeks to see his progress! :-)" : "Dave hasn't started his thru-hike yet! But when he starts in late May his progress will be shown on this map. :-)");
+		else if ( nobo.startend[1] !== "undefined" )
+			popup_msg( "David ended his hike on " + nobo.startend[1] + "!" );
 		else
-			{
-				
-				$("menu").className = "loaded";
-			}
+			popup_msg("", true, true);
 
 		layer.element.className = layer.element.className + " loaded";
 
 		// we don't need loadend event listener anymore, so might as well remove
 		layer.object.events.remove("loadend");
+		$("menu").className = (nobo.cur_waypoint.features.length == 0) ? "loaded" : "loaded" ;
+				  
 	},
 	zoom_changed : function(zoom)
 	{
@@ -460,7 +524,7 @@ var nobo =
 
 		// calculate bounds padding
 		var padding_x = (nobo.style.bounds_pct / 100) * (resolutions[zoom_lvl] * window.innerWidth);
-		var padding_y = padding_x * .2;
+		var padding_y = padding_x * .3;
 
 		// for small browsers i think it's more handsome to have the terminus icon at [1.5y,1.5y]
 		if (window.innerWidth <= 1024)
@@ -479,9 +543,9 @@ var nobo =
 
 		// set restrictedExtent based upon terminus locations & bounds padding
 		// but not if the user is far up enough! (and the user has broken through)
-		if ( zoom_lvl >4 && !nobo.broken_through  )
+		if ( zoom_lvl >3 && !nobo.broken_through  )
 			nobo.map.setOptions({restrictedExtent: OpenLayers.Bounds.fromArray([katahdin[1]-padding_x, katahdin[0]-padding_y, springer[1]+padding_x, springer[0]+padding_y])});
-		else if ( zoom_lvl <= 4 )
+		else if ( zoom_lvl <= 3 )
 			{
 				nobo.broken_through = true;
 				nobo.map.setOptions({restrictedExtent: null});
@@ -494,7 +558,9 @@ var nobo =
 		// only display waypoints if zoom is greatr or eq to 6
 		if ( typeof nobo.waypoints !== "undefined" ) nobo.waypoints.setVisibility( zoom_lvl>=6 );
 		// only display cur_waypoint if zoom is grtr or eq to 4
-		if ( typeof nobo.cur_waypoint !== "undefined" ) nobo.cur_waypoint.setVisibility( zoom_lvl >= 4);
+		if ( typeof nobo.cur_waypoint !== "undefined" ) nobo.cur_waypoint.setVisibility( zoom_lvl >= 5);
+
+		nobo.at_states.setVisibility( zoom_lvl>= 4 );
 
 		nobo.terminus.refresh();
 	}

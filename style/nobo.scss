@@ -22,6 +22,10 @@ html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abb
 		right: 2%;
 		bottom: 2%;
 	}
+	#scalebar {
+		bottom: 2%;
+		left: 2%;
+	}
 }
 
 @media screen and (min-width: 800px)
@@ -32,6 +36,10 @@ html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abb
 		}
 	#controls {
 		right: 14%;
+		bottom: 3%;
+	}
+	#scalebar {
+		left: 14%;
 		bottom: 3%;
 	}
 }
@@ -145,15 +153,106 @@ nav {
 
 }
 
+// ie popup message 
+
+#ie_msg {
+	display: none;
+	background-image: url(http://lh6.ggpht.com/-cdHk7mAlb1U/S9ZxsaBKa9I/AAAAAAAAAPg/1zKUwVQcsWs/s0/Bliss%252520%2525281024%252520x%252520768%252529.jpg);
+    background-repeat: no-repeat;
+    background-position: center center;
+	background-size: 100% 100%;
+
+	position: absolute;
+	left: 0;
+	top: 0;
+	z-index: 99999999999999;
+}
+
+#ie_msg, #ie_msg tbody, #ie_msg tr, #ie_msg td {
+	width: 100%;
+	height: 100%;
+	text-align: center;
+	vertical-align: middle;
+}
+// scale bar 
+
+#scalebar {
+	position: absolute;
+	z-index: 1000000000;
+	margin-left: -20px;
+}
+
+.olControlScaleBarNumbers, .olControlScaleBarUnits {
+	font-family: 'ambitsek';
+	font-size: 8px;
+	color: #fff;
+}
+
+.olControlScaleBar {
+    bottom: 10px;
+    left: 10px;
+    font-family: sans-serif;
+    color: #fff;
+}
+
+.olControlScaleBarBar {
+    height: 1px;
+    top: 14px;
+    background: #fff;
+}
+
+.olControlScaleBarBarAlt {
+    height: 1px;
+    top: 14px;
+    background: #fff;
+}
+
+.olControlScaleBarMarkerMajor {
+    height: 7px;
+    width: 1px;
+    top: 11px;
+    background: #fff;
+}
+
+.olControlScaleBarMarkerMinor {
+    height: 5px;
+    width: 1px;
+    top: 12px;
+    background: #fff;
+}
+
+.olControlScaleBarNumbersBox {
+    width: 40px;
+    height: 13px;
+    top: 21px;
+    //font-size: 0.7em;
+}
+
+.olControlScaleBarLabelBox {
+    top: -2px;
+    height: 15px;
+    //font-weight: bold;
+    letter-spacing: 0.1em;
+    //font-size: 0.7em;
+    //font-variant: small-caps;
+}
+
+.olControlScaleBarLabelBoxSingleLine {
+    height: 15px;
+    width: 35px;
+    top: 5px;
+    left: 10px;
+    //font-size: 0.7em;
+    //font-variant: small-caps;
+}
 // popup box
 
 #popup {
-	//display: none;
 	position: absolute;
 
 	top: 50%;
 	left: 50%;
-	z-index: 10000000000000000;
+	z-index: 9999999999;
 
 	//width: 290px;
 	//height: 90px;
@@ -178,10 +277,10 @@ nav {
 	}
 
 	&.displayed {
-		width: 290px;
+		width: 250px;
 		height: 76px;
 		
-		margin-left: -145px;
+		margin-left: -125px;
 		margin-top: -38px;
 
 		#popup_msg {
@@ -244,15 +343,10 @@ nav {
 	padding: 0;
 	margin: 0;
 
-	&.hidden {
-		&>li:not(.zoom) {
-			display: none;
-		}
-	}
-
 	&>li {
-		padding: 0;
+		padding: 1px 0;
 		margin: 0 0 3px 0;
+		text-align: right;
 
 		&.label {
 			text-decoration: underline;
@@ -264,10 +358,10 @@ nav {
 
 			div {
 				display: inline-block;
-				width: 10px;
-				height: 10px;
+				width: 16px;
+				height: 16px;
 				text-align: center;
-				line-height: 10px;
+				line-height: 16px;
 				margin-left: 4px;
 				border: 1px solid #fff;
 				
@@ -281,6 +375,21 @@ nav {
 					opacity: 0.5;
 				}
 			}
+		}
+	}
+}
+
+#map_credits {
+	display: none;
+}
+
+#show_map_credits {
+	&:hover {
+		text-decoration: underline;
+		cursor: default;
+
+		#map_credits {
+			display: inline-block;
 		}
 	}
 }
@@ -400,37 +509,95 @@ div.olControlZoom {
 	}
 }
 
-#updates{
-	padding: 4px;
-	border-radius: 2px;
-	&>input {
-		width: 100%;
-		margin-bottom: 4px;
+#updates {
+	background: transparent;
+}
 
-		font: inherit;
+#boot_env {
+	position: relative;
+}
 
-		&:hover {
-			outline: none;
+#updates_info {
+	position: absolute;
+	top: 265px;
+	left: 55px;
+
+	@include transform(translate3d(0,0,0));
+	@include transform(rotate(24deg));
+
+	-webkit-backface-visibility: hidden;
+
+	div {
+		width: 260px;
+		color: #fff;
+		font-family: inherit;
+		font-size: 14px;
+		text-align: center;
+	}
+}
+
+#updates_email {
+
+	background: rgba(255,255,255,0.5);
+	border: 1px solid #fff;
+	height: 20px;
+	width: 210px;
+	padding: 0;
+	margin: 0;
+
+	font-family: arial;
+	font-size: 11px;
+	letter-spacing: 1px;
+
+
+	//text-transform:uppercase;
+
+	@include placeholder {
+		color: #000;
+		text-transform: none;
+		text-align: center;
+	}
+
+	&:focus {
+		outline: none;
+
+		@include placeholder {
+			text-transform: none;
 		}
 	}
-
 }
 
-#updates_status {
-	display: none;
+#updates_explanation {
+	position: absolute;
+	top: 15px;
+	right: -10px;
+	width: 210px;
+	font-family: 'ambitsek';
+	font-size: 8px;
+	line-height: 14px;
+
+	background: rgba(255,255,255,0.5);
+	border: 1px solid #000;
+	border-radius: 3px;
+	padding: 5px;
 }
 
+#updates_submit {
+	border: 1px solid #fff;
+	background: rgba(255,255,255,0.5);
+	font-family: arial, sans-serif;
+	font-size: 11px;
+	line-height: 18px;
+	display: inline-block;
+	padding: 0 5px;
 
-#notify_buttons {
-	&>input {
-		font:inherit;
+	&:hover {
+		cursor: pointer;
+		color: #fff;
+		background: rgba(0,0,0,0.5);
+		border: 1px solid #000;
 	}
 }
-
-#update_email {
-	display: block;
-}
-
 //postcard
 
 #postcard {

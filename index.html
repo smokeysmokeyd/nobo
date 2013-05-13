@@ -8,6 +8,7 @@
   
   <script type="text/javascript" src="js/OpenLayers.js"></script>
   <script type="text/javascript" src="js/nobo.js"></script>
+
 </head>
 
 <body>
@@ -15,6 +16,11 @@
 	<div id="close_popup">close window</div>
 	<div id="popup_msg"></div>
   </div>
+  <table id="ie_msg">
+	<tr><td>
+		<a href="http://getfirefox.com"><img src="style/ie_msg.jpg"></a>
+	</td></tr>
+  </table>
 	<nav>
 	  <div id="logo"><img src="style/logo.png"/></div>
 	  <ul id="menu">
@@ -40,9 +46,16 @@
 	</div>
 
 	<div id="updates" class="content">
-	  <input type="text" id="update_email" placeholder="please enter your email address"/>
-	  notify: <span id="notify_buttons"><input type="button" id="every" value="every check-in"/><input type="button" id="every3" value="every 3 check-ins"/></span>
-	  <div id="updates_status">good</div>
+	  <div id="boot_env">
+		<img src="style/bootmsg.png"/>
+		<div id="updates_info">
+		  <input id="updates_email" type="email" spellcheck="false" placeholder="enter your email here!"/>
+		  <span id="updates_submit">sign up</span>
+		</div>
+		<div id="updates_explanation">
+		  Hey! If you wish to sign up for updates, write your address on my boot. Each time I check in, you'll get an email with my location and a special message from me in the subject. :-)
+		</div>
+	  </div>
 	</div>
 
 	<div id="good_ppl" class="content">
@@ -55,34 +68,45 @@
 		<li><span class="b2">Sam Missel</span> miss you brother. rest in peace...</li>
 	  </ol>
 
-	  <p class="justify">Many thanks and much love also to all the people who have had a positive impact on me over the years:</p>
+	  <p class="justify">Many thanks and much love also to all these people who have had a major positive impact on me over the years:</p>
 	  <ul>
 		<li>Jinkyman</li>
 		<li>Brent</li>
 		<li>Mary J</li>
 		<li>Samson</li>
 		<li>A-Town Down</li>
-		<li>Matty P & The Pronchicks</li>
+		<li>Biko & The Pronchicks</li>
 		<li>Jazzy J</li>
+		<li>T-Mas</li>
+		<li>Princess Mia</li>
+		<li>Pussyhandz</li>
+		<li>Mishka</li>
+		<li>Sconefield</li>
+		<li>Jennios</li>
+		<li>Bottles</li>
+		<li>Mic</li>
+		<li>T-Rod</li>
+		<li>Hurofuck</li>
+		<li>Rego</li>
+		<li>Elo</li>
+		<li>Unsticky</li>
+		<li>K-Swag</li>
+		<li>Gabi</li>
 		<li>Joce</li>
 		<li>MadPad</li>
 		<li>Ms. D</li>
 		<li>John Smith</li>
-		
-		
 	  </ul>
 
 	  <h3>Website credits: <a href="http://openlayers.org" target="_blank">OpenLayers API</a>, <a href="http://developer.mapquest.com/web/products/open/map" target="_blank">Mapquest</a> for imagery, <a href="http://www.appalachiantrail.org/about-the-trail/mapping-gis-data/appalachian-trail-gis-gps-data" target="_blank">the ATC</a> for GIS data</h3>
 	</div>
 
   <div id="map" class="loaded">
-	<ul id="controls" class="hidden">
+	  <div id="scalebar">
+	  </div>
+	<ul id="controls">
 	  <li class="zoom">zoom:<div id="zoom_out">-</div><div id="zoom_in">+</div></li>
-	  <!--<li class="label">show map controls</li>-->
-	  <li>zoom <span id="zoom_in">in</span> / <span id="zoom_out">out</span></li>
-	  <li>past waypoints</li>
-	  <li>at shelters</li>
-	  <li>trail towns</li>
+	  <!--<li><span id="map_credits">afwefawef</span><span id="show_map_credits">Map data courtesy of Mapquest and the ATC</span></li>-->
 	</ul>
   </div>
 </body>
