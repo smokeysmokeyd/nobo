@@ -1,8 +1,11 @@
+<?php
+   include "admin/nobo_config.php";
+?>
 <!DOCTYPE html>
 <html>
 <!-- hey! thanks for looking at my source. hope you have a good day. -->
 <head>
-  <title>NOBO</title>
+  <title><?php echo(U_TRAIL_NAME); ?>'s Journey on the Appalachian Trail</title>
 
   <link rel="stylesheet" type="text/css" href="style/nobo.css" />
   
@@ -36,7 +39,7 @@
 	  </div>
 	  <div id="p_return">
 		<div id="p_addr">
-		  <span>Wavy Davy</span>
+		  <span><?php echo(U_TRAIL_NAME); ?></span>
 		  <span><span id="mileage">100</span> Appalachian Trail</span>
 		  <span>East Coast, USA</span>
 		</div>

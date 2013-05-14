@@ -2,15 +2,16 @@
 
 require "admin/nobo_config.php";
 
+$trail_name = U_TRAIL_NAME;
 $signup_msg = <<<MSG
 Dear you,
 
-  You are officially signed up to receive trail updates from Dave! In the future, you will receive some emails that let you in on where I am and a lil' bit of what I am thinking.
+You are officially signed up to receive trail updates from Dave! In the future, you will receive some emails that let you in on where I am and a lil'' bit of what I am thinking.
 
-  Thanks for being a part of this journey with me and I wish you all the best.
+Thanks for being a part of this journey with me and I wish you all the best.
 
 Sincerely,
-Dave
+$trail_name
 
 p.s. The subject line of each email will have a special message from me which is only available to you, my email subscribers. :-)
 MSG;
@@ -40,8 +41,8 @@ if ( !empty($_POST) )
 		  trigger_error("Was not able to enter comment into database!");
 
 		// send copy to email
-		if ( mail("trailhe@d-luv.net", "[comment] from {$_SERVER["REMOTE_ADDR"]}", $_POST["p_msg"]) )
-		  echo json_encode(array("msg" => "Comment has been successfully entered!"));
+		if ( mail(DLUV_EMAIL, "[comment] from {$_SERVER["REMOTE_ADDR"]}", $_POST["p_msg"]) )
+		  echo json_encode(array("msg" => "Comment has been successfully entered! :-)"));
 		else
 		  trigger_error("Couldn't send a copy of comment to " . U_TRAIL_NAME . "'s email", E_USER_ERROR);
 	  }
