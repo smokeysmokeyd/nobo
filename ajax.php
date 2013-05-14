@@ -54,7 +54,7 @@ if ( !empty($_POST) )
 		// trigger first email sent
 
 		if ( send_email($email, "yo bro", "yoooooo") )
-		  echo json_encode(array("msg" => "Sweet!! You have been signed up for email updates! A confirmation email has been dispatched to your address. Much Love. -D"));
+		  echo json_encode(array("msg" => "Sweet!! You have been signed up for email updates! A confirmation message has been dispatched to your address"));
 		else
 		  trigger_error("An error occurred when trying to send you an email.");
 	  }

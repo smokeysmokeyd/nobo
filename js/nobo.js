@@ -21,7 +21,7 @@ var aerial = ["http://otile1.mqcdn.com/tiles/1.0.0/sat/${z}/${x}/${y}.jpg",
 
 var resolutions = [156543.03390625, 78271.516953125, 39135.7584765625, 19567.87923828125, 9783.939619140625, 4891.9698095703125, 2445.9849047851562, 1222.9924523925781, 611.4962261962891, 305.74811309814453, 152.87405654907226, 76.43702827453613, 38.218514137268066, 19.109257068634033, 9.554628534317017, 4.777314267158508];
 
-var months = ["january", "febuary", "march", "april", "june", "july", "august", "september", "october", "november", "december"];
+var months = ["january", "febuary", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december"];
 
 var geographic = new OpenLayers.Projection('EPSG:4326');
 var mercator = new OpenLayers.Projection('EPSG:900913');
@@ -327,8 +327,15 @@ var nobo =
 							badElements: ["updates_email", "p_text"]
 						}),
 					new OpenLayers.Control.ScaleBar({
-							div: document.getElementById("scalebar"),
+							div: $("scalebar"),
+							subdivisions: 4,
 							displaySystem: "english",
+						}),
+					new OpenLayers.Control.MousePosition({
+							element: $("coords"),
+							numDigits: 2,
+							prefix: "Lon: ",
+							separator: "<br/>Lat: "
 						})]
 			});
 
@@ -394,7 +401,6 @@ var nobo =
 										if ( dist == 0.0 || dist == 2185.9 )								 
 											{
 												var time = new Date(obj.layer.features[i].data.time.replace(/-/g, "/"));
-												console.log(time);
 
 												nobo.startend[ (dist == 0.0 ? 0 : 1) ] = months[time.getMonth()] + " " + time.getDate();
 												obj.layer.removeFeatures(obj.layer.features[i]);	
@@ -448,7 +454,7 @@ var nobo =
 				this.cur_waypoint.styleMap.styles.default.context = { timeAgo: function(f){ return pretty_date(f.data.time); } };
 
 				// set the center of the map to the current waypoint
-				this.map.setCenter([this.current_waypoint.geometry.x, this.current_waypoint.geometry.y], 5);
+				this.map.setCenter([this.current_waypoint.geometry.x, this.current_waypoint.geometry.y], 6);
 			}
 
 		// create ${timeAgo} variable to dynamically return time ago (so it can be accurate even after page load)
@@ -509,13 +515,15 @@ var nobo =
 		else if ( nobo.startend[1] !== "undefined" )
 			popup_msg( "David ended his hike on " + nobo.startend[1] + "!" );
 		else
-			popup_msg("", true, true);
+			popup_msg("", true, true); // close popup
+
+
 
 		layer.element.className = layer.element.className + " loaded";
 
 		// we don't need loadend event listener anymore, so might as well remove
 		layer.object.events.remove("loadend");
-		$("menu").className = (nobo.cur_waypoint.features.length == 0) ? "loaded" : "loaded" ;
+		$("menu").className = (nobo.cur_waypoint.features.length == 0) ? "loaded pre" : "loaded" ;
 				  
 	},
 	zoom_changed : function(zoom)

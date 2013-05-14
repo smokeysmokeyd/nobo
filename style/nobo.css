@@ -117,7 +117,7 @@ nav {
   color: #fff; }
   #menu.loaded li {
     opacity: 1; }
-  #menu.pre #m_postcard, #menu.pre #m_good_ppl {
+  #menu.pre #m_good_ppl {
     display: none; }
   #menu li {
     line-height: 10px;
@@ -131,6 +131,10 @@ nav {
     #menu li:hover {
       cursor: pointer;
       padding: 0 0 0 4px; }
+      #menu li:hover:before {
+        content: "+";
+        padding: 0 3px 0 0;
+        display: inline-block; }
       #menu li:hover.r {
         color: red; }
         #menu li:hover.r {
@@ -217,6 +221,15 @@ nav {
   width: 35px;
   top: 5px;
   left: 10px; }
+
+#coords {
+  position: absolute;
+  right: 14%;
+  top: 3%;
+  z-index: 9999999999999;
+  font-family: 'ambitsek';
+  font-size: 8px;
+  color: #fff; }
 
 #popup {
   position: absolute;
@@ -401,6 +414,8 @@ div.olControlZoom {
     font-family: inherit;
     font-size: 14px;
     text-align: center; }
+    #updates_info div:hover {
+      cursor: default; }
 
 #updates_email {
   background: rgba(255, 255, 255, 0.5);

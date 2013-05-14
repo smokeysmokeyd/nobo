@@ -118,7 +118,7 @@ nav {
 	}
 
 	&.pre {
-		#m_postcard, #m_good_ppl {
+		#m_good_ppl {
 			display: none;
 		}
 	}
@@ -134,6 +134,12 @@ nav {
 		@include transition(opacity 3s ease-in-out);
 
 		&:hover {
+
+			&:before {
+				content: "+";
+				padding: 0 3px 0 0;
+				display: inline-block;
+			}
 			&.r {
 				color: red;
 				& { background-color: red; color: #000; }
@@ -246,6 +252,16 @@ nav {
     //font-variant: small-caps;
 }
 // popup box
+
+#coords {
+	position: absolute;
+	right: 14%;
+	top: 3%;
+	z-index:9999999999999;
+	font-family: 'ambitsek';
+	font-size: 8px;
+	color: #fff;
+}
 
 #popup {
 	position: absolute;
@@ -533,6 +549,10 @@ div.olControlZoom {
 		font-family: inherit;
 		font-size: 14px;
 		text-align: center;
+
+		&:hover {
+			cursor: default;
+		}
 	}
 }
 
