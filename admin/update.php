@@ -178,7 +178,7 @@ function change_variable($string)
   $parts = preg_replace("/[^a-zA-Z0-9\ \_\-]/", "", explode("=", $string));
   
   $new_cfg = preg_replace("/define\(\"U_{$parts[0]}\", \"[^\"]+\"\);/i", "define(\"U_" .
-						  strtoupper($parts[0]) . "\", \"{$parts[1]}\")", $config, -1, $matches);
+						  strtoupper($parts[0]) . "\", \"{$parts[1]}\");", $config, -1, $matches);
 
   if ($matches == 1)
 	file_put_contents("nobo_config.php", $new_cfg);
