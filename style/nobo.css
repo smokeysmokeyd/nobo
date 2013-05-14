@@ -33,7 +33,7 @@ table {
   font-style: normal; }
 
 @media screen and (max-width: 800px) {
-  nav {
+  nav, .content {
     left: 2%;
     top: 2%; }
 
@@ -45,7 +45,7 @@ table {
     bottom: 2%;
     left: 2%; } }
 @media screen and (min-width: 800px) {
-  nav {
+  nav, .content {
     left: 14%;
     top: 3%; }
 
@@ -334,11 +334,10 @@ div.olControlZoom {
 .content {
   font-family: tahoma, verdana, sans-serif;
   font-size: 10px;
-  display: none;
   position: absolute;
   top: 3%;
   left: 14%;
-  margin-top: 40px;
+  margin-top: 99999999999px;
   background-image: -webkit-radial-gradient(center,  ellipse, white 0%, rgba(255, 255, 255, 0.92) 100%);
   background-image: radial-gradient(  ellipse at center, white 0%, rgba(255, 255, 255, 0.92) 100%);
   z-index: 10000000; }
@@ -482,19 +481,13 @@ div.olControlZoom {
     border: 1px solid black; }
 
 #postcard {
-  display: none;
   font-family: tahoma, verdana, sans-serif;
   font-size: 10px;
-  position: absolute;
-  top: 3%;
-  left: 14%;
-  margin-top: 40px;
   border-radius: 2px;
   background-image: url(yes80.png);
   width: 380px;
   height: 230px;
   padding: 7px;
-  z-index: 100000;
   -webkit-transition: 0.5s 0.7s left ease-in;
   -moz-transition: 0.5s 0.7s left ease-in;
   transition: 0.5s 0.7s left ease-in; }

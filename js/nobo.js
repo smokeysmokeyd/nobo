@@ -234,7 +234,7 @@ var page =
 			popup_msg("", false, true);
 
 		for (var i=0; i<menu_opts.length; i++)
-			$(menu_opts[i]).style.display = ( el == null ? "none" : ( (menu_opts[i] == id) ? ($(id).style.display=="block" ? "none" : "block") : "none" ));
+			$(menu_opts[i]).style.marginTop = ( el == null ? "99999px" : ( (menu_opts[i] == id) ? ($(id).style.marginTop=="40px" ? "99999px" : "40px") : "99999px" ));
 			
 
 		// must blue focus on any text fields if they are not displayed so keyboarddefaults works currectly

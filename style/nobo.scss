@@ -14,7 +14,7 @@ html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abb
 
 @media screen and (max-width: 800px)
 {
-	nav {
+	nav, .content {
 		left: 2%;
 		top: 2%;
 		}
@@ -30,7 +30,7 @@ html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abb
 
 @media screen and (min-width: 800px)
 {
-	nav {
+	nav, .content {
 		left: 14%;
 		top: 3%;
 		}
@@ -418,11 +418,10 @@ div.olControlZoom {
 	font-family: tahoma, verdana, sans-serif;
 	font-size: 10px;
 
-	display: none;
 	position: absolute;
 	top: 3%;
 	left: 14%;
-	margin-top: 40px;
+	margin-top: 99999999999px;
 
 	@include background-image( radial-gradient(ellipse at center, rgba(255,255,255,1) 0%,rgba(255,255,255,0.92) 100%) );
 
@@ -621,14 +620,8 @@ div.olControlZoom {
 //postcard
 
 #postcard {
-	display: none;
 	font-family: tahoma, verdana, sans-serif;
 	font-size: 10px;
-
-	position: absolute;
-	top: 3%;
-	left: 14%;
-	margin-top: 40px;
 
 	border-radius: 2px;
 	background-image: url(yes80.png);
@@ -636,8 +629,6 @@ div.olControlZoom {
 	width: 380px;
 	height: 230px;
 	padding: 7px;
-
-	z-index: 100000;
 
 	&>div:not(#p_stamp) {
 		float: left;
