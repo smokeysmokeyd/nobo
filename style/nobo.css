@@ -337,10 +337,12 @@ div.olControlZoom {
   position: absolute;
   top: 3%;
   left: 14%;
-  margin-top: 99999999999px;
+  margin-top: 40px;
   background-image: -webkit-radial-gradient(center,  ellipse, white 0%, rgba(255, 255, 255, 0.92) 100%);
   background-image: radial-gradient(  ellipse at center, white 0%, rgba(255, 255, 255, 0.92) 100%);
   z-index: 10000000; }
+  .content.hidden {
+    top: -9999999px; }
 
 #good_ppl {
   width: 310px;

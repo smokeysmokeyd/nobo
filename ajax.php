@@ -2,6 +2,19 @@
 
 require "admin/nobo_config.php";
 
+$signup_msg = <<<MSG
+Dear you,
+
+  You are officially signed up to receive trail updates from Dave! In the future, you will receive some emails that let you in on where I am and a lil' bit of what I am thinking.
+
+  Thanks for being a part of this journey with me and I wish you all the best.
+
+Sincerely,
+Dave
+
+p.s. The subject line of each email will have a special message from me which is only available to you, my email subscribers. :-)
+MSG;
+
 try {
   $db = new PDO("mysql:dbname=" . DB_NAME . ";host=" . DB_HOST, DB_USER, DB_PASS);
 
@@ -53,7 +66,7 @@ if ( !empty($_POST) )
 
 		// trigger first email sent
 
-		if ( send_email($email, "yo bro", "yoooooo") )
+		if ( send_email($email, "Hey!", $signup_msg) )
 		  echo json_encode(array("msg" => "Sweet!! You have been signed up for email updates! A confirmation message has been dispatched to your address"));
 		else
 		  trigger_error("An error occurred when trying to send you an email.");
